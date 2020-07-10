@@ -1,15 +1,20 @@
+import random
 #creates type dis/advantes for fire, water, and grass types
 type_advantages = {'grass':'water', 'water':'fire', 'fire':'grass'}
 type_disadvantages = {'water':'grass', 'fire':'water', 'grass':'fire'}
 
+flamethrower = [90, 'fire']
+giga_drain = [75, 'grass']
+aqua_tail = [90, 'water']
+
 class Pokemon:
 
-    def __init__(self, name, type, level=5):
+    def __init__(self, name, type, base_hp, level=5):
         self.name = name
         self.level = level
         self.type = type
-        self.max_health = level * 4
-        self.current_health = level * 4
+        self.max_health = 110 + (2*base_hp)
+        self.current_health = self.max_health
         self.knocked_out = False
         self.weakness = type_disadvantages.get(type)
         self.advantage = type_advantages.get(type)
@@ -47,53 +52,69 @@ class Pokemon:
             self.current_health += (self.max_health / 2)
             print("{name} was revived and has returned to the battle!".format(name=self.name))
 
-    def attack(self, opponent_poke):
+    def attack(self, opposing_pokemon, move):
         #checks to see if the pokemon is able to attack the opponent
         if self.knocked_out == True:
-            return "This pokemon has fainted and is unable to attack!"
+            print("This pokemon has fainted and is unable to attack!")
+
         else:
-            damage = self.max_health / 3
-            #determines damage if it's a not very effective matchup
-            if self.weakness == opponent_poke.type:
-                matchup_damage = damage / 2
-                print("{my_poke} attacked {oppo_poke} for {damage} damage.".format(my_poke=self.name, oppo_poke=opponent_poke.name, damage=matchup_damage))
-                print("It's Not Very Effective!")
-                opponent_poke.lose_health(matchup_damage)
-            #determines damage if it's a supereffective matchup
-            elif self.advantage == opponent_poke.type:
-                matchup_damage = damage * 2
-                print("{my_poke} attacked {oppo_poke} for {damage} damage.".format(my_poke=self.name, oppo_poke=opponent_poke.name, damage=matchup_damage))
+            critical = 1
+            stab = 1
+            typeadv = 1
+            crit_random = random.randint(1, 20)
+
+            power = move[0]
+            movetype = move[1]
+
+            if crit_random == 6:
+                critical = 2
+            if self.type == movetype:
+                stab = 1.5
+            if movetype == opposing_pokemon.weakness:
+                typeadv = 2
+            elif movetype == opposing_pokemon.advantage:
+                typeadv = 0.5
+
+            modifier = stab * critical * typeadv
+            unrounded_damage = (((((2 * self.level / 5) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
+            damage = round(unrounded_damage, 0)
+
+            print("{my_poke} attacked {oppo_poke} for {damage} damage.".format(my_poke=self.name, oppo_poke=opposing_pokemon.name, damage=damage))
+
+            if typeadv == 2:
                 print("It's Super Effective!")
-                opponent_poke.lose_health(matchup_damage)
-            #determines damage if it's a neutral matchup
-            else:
-                matchup_damage = damage
-                print("{my_poke} attacked {oppo_poke} for {damage} damage.".format(my_poke=self.name, oppo_poke=opponent_poke.name, damage=matchup_damage))
-                opponent_poke.lose_health(matchup_damage)
+            elif typeadv == 0.5:
+                print("It's Not Very Effective!")
+
+            opposing_pokemon.lose_health(damage)
+
 
 class Charizard(Pokemon):
-    def __init__(self, level=5):
-        super().__init__("Charizard", 'fire', level)
+    def __init__(self, level, base_hp, base_attack, base_defense, base_speed, move_list):
+        super().__init__("Charizard", 'fire', base_hp, level)
+        self.attackst = (2*base_attack) + 5
+        self.defensest = (2*base_defense) + 5
+        self.speedst = (2*base_speed) + 5
+        self.move_list = move_list
+
 
 class Venusaur(Pokemon):
-    def __init__(self, level=5):
-        super().__init__("Venusaur", 'grass', level)
+    def __init__(self, level, base_hp, base_attack, base_defense, base_speed, move_list):
+        super().__init__("Venusaur", 'grass', base_hp, level)
+        self.attackst = (2*base_attack) + 5
+        self.defensest = (2*base_defense) + 5
+        self.speedst = (2*base_speed) + 5
+        self.move_list = move_list
+
 
 class Blastoise(Pokemon):
-    def __init__(self, level=5):
-        super().__init__("Blastoise", 'water', level)
+    def __init__(self, level, base_hp, base_attack, base_defense, base_speed, move_list):
+        super().__init__("Blastoise", 'water', base_hp, level)
+        self.attackst = (2*base_attack) + 5
+        self.defensest = (2*base_defense) + 5
+        self.speedst = (2*base_speed) + 5
+        self.move_list = move_list
 
-class Combusken(Pokemon):
-    def __init__(self, level=5):
-        super().__init__("Combusken", 'fire', level)
-
-class Sceptile(Pokemon):
-    def __init__(self, level=5):
-        super().__init__("Sceptile", 'grass', level)
-
-class Swampert(Pokemon):
-    def __init__(self, level=5):
-        super().__init__("Swampert", 'water', level)
 
 class Trainer:
 
@@ -108,25 +129,40 @@ class Trainer:
         print("{trainer} has the following pokemon:".format(trainer=self.trainer_name))
         for pokemon in self.pokemon_list:
             print(pokemon)
-        return "{pokemon} is currently in battle.".format(pokemon=self.pokemon_list[self.current_pokemon].name)
+        print("{pokemon} is currently in battle.".format(pokemon=self.pokemon_list[self.current_pokemon].name))
+        return "-----"
 
     def use_potion(self):
         #makes sure that the trainer has enough potions before using them, then increases the health of the current pokemon
         potion = 20
-        if self.potions > 0:
-            print("{trainer} used a potion on {pokemon}.".format(trainer=self.trainer_name, pokemon=self.pokemon_list[self.current_pokemon].name))
-            self.pokemon_list[self.current_pokemon].gain_health(potion)
-            self.potions -= 1
+        if self.pokemon_list[self.current_pokemon].current_health == self.pokemon_list[self.current_pokemon].max_health:
+            print("You are unable to use a potion on a pokemon with max health!")
+            print("-----")
         else:
-            print("You don't have any potions left!")
-        print('-----')
+            if self.potions > 0:
+                print("{trainer} used a potion on {pokemon}.".format(trainer=self.trainer_name, pokemon=self.pokemon_list[self.current_pokemon].name))
+                max_current_diff = (self.pokemon_list[self.current_pokemon].max_health - self.pokemon_list[self.current_pokemon].current_health)
+                if max_current_diff < potion:
+                    self.pokemon_list[self.current_pokemon].gain_health(max_current_diff)
+                else:
+                    self.pokemon_list[self.current_pokemon].gain_health(potion)
+                self.potions -= 1
+            else:
+                print("You don't have any potions left!")
+            print('-----')
 
-    def attack_opposing_trainer(self, other_trainer):
+    def attack_opposing_trainer(self, other_trainer, move):
         #finds the current pokemon and its opponent, and attacks the opponent
         opposing_pokemon = other_trainer.pokemon_list[other_trainer.current_pokemon]
         my_pokemon = self.pokemon_list[self.current_pokemon]
-        my_pokemon.attack(opposing_pokemon)
-        print('-----')
+
+        if move in self.pokemon_list[self.current_pokemon].move_list:
+            my_pokemon.attack(opposing_pokemon, move)
+            print('-----')
+
+        else:
+            print("This pokemon doesn't have that move!")
+            print('-----')
 
     def switch_active_pokemon(self, new_active):
         #checks to make sure that the new_active value can be applied to the pokemon_list
@@ -144,28 +180,19 @@ class Trainer:
                 self.current_pokemon = new_active
             print('-----')
 
-charizard = Charizard(36)
-venusaur = Venusaur(32)
-blastoise = Blastoise(36)
-combusken = Combusken(36)
-sceptile = Sceptile(32)
-swampert = Swampert(36)
 
+charizard = Charizard(100, 80, 84, 78, 100, [flamethrower])
+venusaur = Venusaur(100, 78, 82, 83, 80, [giga_drain])
+blastoise = Blastoise(100, 79, 83, 100, 78, [aqua_tail])
 
-red = Trainer([charizard, venusaur, blastoise], 3, "Red")
-steven = Trainer([combusken, sceptile, swampert], 3, "Steven")
+red = Trainer([charizard], 3, "Red")
+steven = Trainer([venusaur, blastoise], 3, "Steven")
 
 print(red)
 print(steven)
 
-print('-----')
-red.attack_opposing_trainer(steven)
-steven.switch_active_pokemon(2)
-red.attack_opposing_trainer(steven)
-steven.attack_opposing_trainer(red)
-red.use_potion()
-steven.attack_opposing_trainer(red)
-red.switch_active_pokemon(0)
-red.switch_active_pokemon(1)
-charizard.revive()
-print(charizard.current_health)
+red.attack_opposing_trainer(steven, flamethrower)
+steven.attack_opposing_trainer(red, giga_drain)
+red.attack_opposing_trainer(steven, flamethrower)
+steven.switch_active_pokemon(1)
+steven.attack_opposing_trainer(red, aqua_tail)
