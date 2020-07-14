@@ -68,22 +68,26 @@ class Pokemon:
         if self.current_health <= 0 and self.knocked_out == True:
             self.knocked_out = False
             self.current_health += (self.max_health / 2)
-            print("{name} was revived and has returned to the battle!".format(name=self.name))
+            print("\n{name} was revived and has returned to the battle!".format(name=self.name))
 
     def attack(self, opposing_pokemon, move):
         #checks to see if the pokemon is able to attack the opponent
         if self.knocked_out == True:
-            print("This pokemon has fainted and is unable to attack!")
+            print("\nThis pokemon has fainted and is unable to attack!")
         else:
             #sets each modifier at 1
             critical = 1
             stab = 1
             typeadv = 1
+            sametype = 1
             crit_random = random.randint(1, 20)
             #finds the info about the move
             power = move[0]
             movetype = move[1]
+            movename = move[2]
             #changes the modifiers based on type mathcups, criticals, and stab
+            if movetype == opposing_pokemon.type:
+                sametype = 0.5
             if crit_random == 6:
                 critical = 2
             if self.type == movetype:
@@ -93,11 +97,13 @@ class Pokemon:
             elif movetype in opposing_pokemon.advantage:
                 typeadv = 0.5
             #multiplies damage by the modifier and rounds the result
-            modifier = stab * critical * typeadv
+            modifier = stab * critical * typeadv * sametype
             unrounded_damage = (((((2 * self.level / 5) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
             damage = round(unrounded_damage, 0)
-            print("{my_poke} attacked {oppo_poke} for {damage} damage.".format(my_poke=self.name, oppo_poke=opposing_pokemon.name, damage=damage))
+            print("\n{trainerpoke} attacked {oppo_poke} using {movename}! \n-{damage} hp".format(trainerpoke=self.name, oppo_poke=opposing_pokemon.name, movename=movename, damage=damage))
             #prints the restult of the type matchup
+            if critical == 2:
+                print("Critical Hit!")
             if typeadv == 2:
                 print("It's Super Effective!")
             elif typeadv == 0.5:
@@ -170,17 +176,15 @@ class Trainer:
         for pokemon in self.pokemon_list:
             print(pokemon)
         print("{pokemon} is currently in battle.".format(pokemon=self.pokemon_list[self.current_pokemon].name))
-        return "-----"
 
     def use_potion(self):
         #makes sure that the trainer has enough potions before using them, then increases the health of the current pokemon
         potion = 20
         if self.pokemon_list[self.current_pokemon].current_health == self.pokemon_list[self.current_pokemon].max_health:
-            print("You are unable to use a potion on a pokemon with max health!")
-            print("-----")
+            print("\nYou are unable to use a potion on a pokemon with max health!")
         else:
             if self.potions > 0:
-                print("{trainer} used a potion on {pokemon}.".format(trainer=self.trainer_name, pokemon=self.pokemon_list[self.current_pokemon].name))
+                print("\n{trainer} used a potion on {pokemon}.".format(trainer=self.trainer_name, pokemon=self.pokemon_list[self.current_pokemon].name))
                 max_current_diff = (self.pokemon_list[self.current_pokemon].max_health - self.pokemon_list[self.current_pokemon].current_health)
                 if max_current_diff < potion:
                     self.pokemon_list[self.current_pokemon].gain_health(max_current_diff)
@@ -188,8 +192,7 @@ class Trainer:
                     self.pokemon_list[self.current_pokemon].gain_health(potion)
                 self.potions -= 1
             else:
-                print("You don't have any potions left!")
-            print('-----')
+                print("\nYou don't have any potions left!")
 
     def attack_opposing_trainer(self, other_trainer, move):
         #finds the current pokemon and its opponent
@@ -198,36 +201,23 @@ class Trainer:
         #makes sure the active pokemon has the move in its list, and attacks with it
         if move in self.pokemon_list[self.current_pokemon].move_list:
             my_pokemon.attack(opposing_pokemon, move)
-            print('-----')
         else:
-            print("This pokemon doesn't have that move!")
-            print('-----')
+            print("\nThis pokemon doesn't have that move!")
 
     def switch_active_pokemon(self, new_active):
         #checks to make sure that the new_active value can be applied to the pokemon_list
         if new_active < len(self.pokemon_list) and new_active >= 0:
             #checks if the the pokemon is knocked out
             if self.pokemon_list[new_active].knocked_out:
-                print("This {pokemon} is knocked out! It is unable to enter the battle!".format(pokemon=self.pokemon_list[new_active].name))
+                print("\nThis {pokemon} is knocked out! It is unable to enter the battle!".format(pokemon=self.pokemon_list[new_active].name))
             #checks whether the pokemon is already in battle
             elif self.current_pokemon == new_active:
-                print("This pokemon is already in battle!")
+                print("\nThis pokemon is already in battle!")
             #switches in the new pokemon
             else:
-                print("{old_active} was switched out.".format(old_active=self.pokemon_list[self.current_pokemon].name))
+                print("\n{old_active} was switched out.".format(old_active=self.pokemon_list[self.current_pokemon].name))
                 print("{new_active} has entered the battle!".format(new_active=self.pokemon_list[new_active].name))
                 self.current_pokemon = new_active
-            print('-----')
-
-    def lose_fight(self, other_trainer):
-        faint_counter = 0
-        for pokemon in range(len(self.pokemon_list - 1)):
-            if self.pokemon_list[pokemon].knocked_out == True:
-                faint_counter += 1
-        if faint_counter == len(self.pokemon_list):
-            print("You blacked out and paid your opponent $682.")
-            lose_fight = True
-
 
 
 charizard = Charizard(100, 80, 84, 78, 100, [flamethrower, fly])
@@ -237,42 +227,88 @@ pidgeot = Pidgeot(100, 83, 80, 75, 101, [sky_attack, slash])
 jolteon = Jolteon(100, 65, 65, 60, 130, [discharge, body_slam])
 nidoking = Nidoking(100, 81, 102, 77, 85, [dig, stone_edge])
 
-trainer1 = Trainer([pidgeot, blastoise, nidoking], 3, "Red")
+player1 = Trainer([pidgeot, blastoise, nidoking], 3, "Red")
 cpu = Trainer([venusaur, jolteon, charizard], 3, "Steven")
 
 
 def start_fight(trainer, other_trainer):
     #introduces the battle and the current pokemon
-    print("{opponent} would like to battle! \n{opponent} sent out {pokemon}.".format(opponent=other_trainer.trainer_name, pokemon=other_trainer.pokemon_list[other_trainer.current_pokemon]))
+    print("\n{opponent} would like to battle! \n{opponent} sent out {pokemon}.".format(opponent=other_trainer.trainer_name, pokemon=other_trainer.pokemon_list[other_trainer.current_pokemon]))
     print("You sent {pokemon}.".format(pokemon=trainer.pokemon_list[trainer.current_pokemon]))
     #creates a for loop that continues until either trainer loses
-    while trainer.lost_fight == False or other_trainer.lostfight == False:
+    end_fight = False
+    while end_fight == False:
         #checks to see if the current pokemon has fainted - if so, forces you to switch pokemon
         if trainer.pokemon_list[trainer.current_pokemon].knocked_out == True:
-            print("Current List of Pokemon: \n1. {poke_1} \n2. {poke_2} \n3. {poke_3} \n-----".format(poke_1=trainer.pokemon_list[0].name, poke_2=trainer.pokemon_list[1].name, poke_3=trainer.pokemon_list[2].name))
-            switch_decision1 = int(input())
+            print("\nCurrent List of Pokemon: \n1. {poke_1} \n2. {poke_2} \n3. {poke_3}".format(poke_1=trainer.pokemon_list[0].name, poke_2=trainer.pokemon_list[1].name, poke_3=trainer.pokemon_list[2].name))
+            switch_decision1 = int(input("Switch to: "))
             trainer.switch_active_pokemon(switch_decision1 - 1)
         #gives you an attack, use potion, or switch pokemon option
-        print("What will you do? \n1. Attack \n2. Use Potion \n3. Switch Pokemon \n-----")
-        user_decision1 = int(input())
+        print("\n1. Attack \n2. Use Potion \n3. Switch Pokemon")
+        user_decision1 = int(input("What will you do: "))
         #checks to see if the input is valid and allows you to redo your input
-        if user_decision1 > 3:
+        options = (1, 2, 3)
+        if user_decision1 not in options:
             print("Not an option! Try Again!")
             user_decision1 = int(input())
         #gives you the attack options and executes them
         if user_decision1 == 1:
-            print("Which attack will you use? \n1. {first_move} \n2. {second_move} \n-----".format(first_move=trainer.pokemon_list[trainer.current_pokemon].move_list[0][2], second_move=trainer.pokemon_list[trainer.current_pokemon].move_list[1][2]))
-            attack_decision1 = int(input())
+            print("\n1. {first_move} \n2. {second_move}".format(first_move=trainer.pokemon_list[trainer.current_pokemon].move_list[0][2], second_move=trainer.pokemon_list[trainer.current_pokemon].move_list[1][2]))
+            attack_decision1 = int(input("Which attack will you use: "))
             trainer.attack_opposing_trainer(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision1 - 1)])
         #gives you the use potion option
         elif user_decision1 == 2:
             trainer.use_potion()
         #gives you the switch pokemon option
         elif user_decision1 == 3:
-            print("Current List of Pokemon: \n1. {poke_1} \n2. {poke_2} \n3. {poke_3} \n-----".format(poke_1=trainer.pokemon_list[0].name, poke_2=trainer.pokemon_list[1].name, poke_3=trainer.pokemon_list[2].name))
-            switch_decision1 = int(input())
+            print("\nCurrent List of Pokemon: \n1. {poke_1} \n2. {poke_2} \n3. {poke_3}".format(poke_1=trainer.pokemon_list[0].name, poke_2=trainer.pokemon_list[1].name, poke_3=trainer.pokemon_list[2].name))
+            switch_decision1 = int(input("Switch to: "))
             trainer.switch_active_pokemon(switch_decision1 - 1)
 
+        if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
+            #randomly decides which attack the cpu will use
+            opponent_decision = random.randint(1, 2)
+            #if cpu current pokemon's health is below 1/4 of the max, it will use a potion - else: will attack with random decision
+            if (other_trainer.pokemon_list[other_trainer.current_pokemon].current_health <= (other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 4)) and other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
+                other_trainer.use_potion()
+            else:
+                other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision - 1])
+        #if cpu current pokemon has fainted, it forces it to switch out
+        #if one of the cpu's pokemon is super effective against trainer1, it switches to that one
+        if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == True:
+            trainer_weaknesses = trainer.pokemon_list[trainer.current_pokemon].weakness
+            for pokemon in other_trainer.pokemon_list:
+                if pokemon.type in trainer_weaknesses and pokemon.knocked_out == False:
+                    pokeindex = other_trainer.pokemon_list.index(pokemon)
+                    other_trainer.switch_active_pokemon(pokeindex)
+                    break
+                #if none of the cpus pokemon are super effective against trainer1, it makes a random switch to any pokemon that hasn't fainted
+                elif pokemon.type not in trainer_weaknesses and pokemon.knocked_out == False:
+                    pokeindex = other_trainer.pokemon_list.index(pokemon)
+                    other_trainer.switch_active_pokemon(pokeindex)
+                    break
 
+        #if all pokemon have fainted on either side, the fight ends
+        faint_counter = 0
+        for pokemon in trainer.pokemon_list:
+            if pokemon.knocked_out == True:
+                faint_counter += 1
+        if faint_counter == len(trainer.pokemon_list):
+            trainer.lost_fight = True
+            end_fight = True
+        faint_counter = 0
+        for pokemon in other_trainer.pokemon_list:
+            if pokemon.knocked_out == True:
+                faint_counter += 1
+        if faint_counter == len(other_trainer.pokemon_list):
+            other_trainer.lost_fight = True
+            end_fight = True
 
-print(start_fight(trainer1, cpu))
+    earnings = random.randint(200, 1000)
+    if trainer.lost_fight == True:
+        print("You blacked out and paid your opponent ${earnings}....".format(earnings=earnings))
+    if other_trainer.lost_fight == True:
+        print("{trainer} has defeated {other_trainer}! \n{trainer} got ${earnings} for winning!".format(trainer=trainer.trainer_name, other_trainer=other_trainer.trainer_name, earnings=earnings))
+    return "Thanks for Playing!"
+
+print(start_fight(player1, cpu))
