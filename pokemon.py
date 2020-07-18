@@ -20,26 +20,26 @@ type_disadvantages = {
 'water':['grass', 'electric'], 'fire':['water', 'ground', 'rock'], 'grass':['fire', 'flying', 'ice', 'poison', 'bug'],
 'electric':['ground'], 'flying':['electric', 'rock', 'ice'], 'ground':['grass', 'water', 'ice'],
 'ice':['rock', 'fire', 'fighting', 'steel'], 'rock':['ground', 'water', 'grass', 'fighting', 'steel'], 'normal':['fighting'],
-'fighting':['flying'], 'steel':['fighting', 'ground', 'fire'], 'psychic':['dark', 'bug', 'ghost'], 'poison':['ground', 'psychic'],
+'fighting':['flying', 'psychic', 'fairy'], 'steel':['fighting', 'ground', 'fire'], 'psychic':['dark', 'bug', 'ghost'], 'poison':['ground', 'psychic'],
 'bug':['flying', 'rock', 'fire'], 'dragon':['ice', 'dragon', 'fairy'], 'dark':['fighting', 'bug', 'fairy'], 'fairy':['poison', 'steel'],
 'ghost':['ghost', 'dark'], '':[]
  }
 
-flamethrower = [90, 'fire', "Flamethrower"]
-giga_drain = [75, 'grass', "Giga Drain"]
-aqua_tail = [90, 'water', "Aqua Tail"]
-sky_attack = [100, 'flying', "Sky Attack"]
-fly = [90, 'flying', "Fly"]
-discharge = [80, 'electric', "Discharge"]
-dig = [80, 'ground', "Dig"]
-ice_beam = [90, 'ice', "Ice Beam"]
-stone_edge = [100, 'rock', "Stone Edge"]
-body_slam = [85, 'normal', "Body Slam"]
-slash = [70, 'normal', "Slash"]
-solar_beam = [120, 'grass', "Solar Beam"]
+flamethrower = [90, 'fire', "Flamethrower", 1]
+giga_drain = [75, 'grass', "Giga Drain", 1]
+aqua_tail = [90, 'water', "Aqua Tail", 0]
+sky_attack = [120, 'flying', "Sky Attack", 0]
+fly = [90, 'flying', "Fly", 0]
+discharge = [80, 'electric', "Discharge", 1]
+dig = [80, 'ground', "Dig", 0]
+ice_beam = [90, 'ice', "Ice Beam", 1]
+stone_edge = [100, 'rock', "Stone Edge", 0]
+body_slam = [85, 'normal', "Body Slam", 0]
+slash = [70, 'normal', "Slash", 0]
+solar_beam = [120, 'grass', "Solar Beam", 1]
 
 class Pokemon:
-    def __init__(self, name, types, base_hp, base_attack, base_defense, base_speed, move_list, level=5):
+    def __init__(self, name, types, base_hp, base_attack, base_defense, base_spatk, base_spdef, base_speed, move_list, level=100):
         self.name = name
         self.level = level
         self.types = types
@@ -50,6 +50,8 @@ class Pokemon:
         self.advantage = type_advantages.get(types[0]) + type_advantages.get(types[1])
         self.attackst = (2*base_attack) + 5
         self.defensest = (2*base_defense) + 5
+        self.sp_attackkst = (2*base_spatk) + 5
+        self.sp_defensest = (2*base_spdef) + 5
         self.speedst = (2*base_speed) + 5
         self.move_list = move_list
 
@@ -99,22 +101,26 @@ class Pokemon:
             crit_random = random.randint(1, 20)
             #finds the info about the move
             power = move[0]
-            movetype = move[1]
+            elementtype = move[1]
             movename = move[2]
+            movetype = move[3]
             #changes the modifiers based on type mathcups, criticals, and stab
-            if movetype in opposing_pokemon.types:
+            if elementtype in opposing_pokemon.types:
                 sametype = 0.5
             if crit_random == 6:
                 critical = 2
-            if movetype in self.types:
+            if elementtype in self.types:
                 stab = 1.5
-            if movetype in opposing_pokemon.weakness:
+            if elementtype in opposing_pokemon.weakness:
                 typeadv = 2
-            elif movetype in opposing_pokemon.advantage:
+            elif elementtype in opposing_pokemon.advantage:
                 typeadv = 0.5
             #multiplies damage by the modifier and rounds the result
             modifier = stab * critical * typeadv * sametype
-            unrounded_damage = (((((2 * self.level / 5) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
+            if movetype == 0:    #physical move
+                unrounded_damage = (((((2 * self.level / 5) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
+            elif movetype == 1:     #special move
+                unrounded_damage = (((((2 * self.level / 5) + 2) * power * self.sp_attackkst / opposing_pokemon.sp_defensest) / 50) + 2) * modifier
             damage = round(unrounded_damage, 0)
             print("\n{trainerpoke} attacked {oppo_poke} using {movename}!".format(trainerpoke=self.name, oppo_poke=opposing_pokemon.name, movename=movename))
             print("-{damage} hp".format(damage=damage))
@@ -216,20 +222,23 @@ class Trainer:
                 self.current_pokemon = new_active
 
 
-charizard = Pokemon("Charizard", ['fire', 'flying'], 80, 84, 78, 100, [flamethrower, fly], 100)
-venusaur = Pokemon("Venusaur", ['grass', 'poison'], 78, 82, 83, 80, [giga_drain, solar_beam], 100)
-blastoise = Pokemon("Blastoise", ['water', ''], 79, 83, 100, 78, [aqua_tail, ice_beam], 100)
-pidgeot = Pokemon("Pidgeot", ['flying', 'normal'], 83, 80, 75, 101, [sky_attack, slash], 100)
-jolteon = Pokemon("Jolteon", ['electric', ''], 65, 65, 60, 130, [discharge, body_slam], 100)
-nidoking = Pokemon("Nidoking", ['ground', 'poison'], 81, 102, 77, 85, [dig, stone_edge], 100)
-dragonite = Pokemon("Dragonite", ['dragon', 'flying'], 91, 134, 95, 80, [], 100)
-gengar = Pokemon("Gengar", ['ghost', 'poison'], 60, 65, 60, 110, [], 100)
-alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 120, [], 100)
-machamp = Pokemon("Machamp", ['fighting', ''], 90, 130, 80, 55, [], 100)
-magneton = Pokemon("Magneton", ['electric', 'steel'], 50, 60, 95, 70, [], 100)
+charizard = Pokemon("Charizard", ['fire', 'flying'], 78, 84, 78, 109, 85, 100, [flamethrower, fly])
+venusaur = Pokemon("Venusaur", ['grass', 'poison'], 80, 82, 83, 100, 100, 80, [giga_drain, solar_beam])
+blastoise = Pokemon("Blastoise", ['water', ''], 79, 83, 100, 85, 105, 78, [aqua_tail, ice_beam])
+pidgeot = Pokemon("Pidgeot", ['flying', 'normal'], 83, 80, 75, 70, 70, 101, [sky_attack, slash])
+jolteon = Pokemon("Jolteon", ['electric', ''], 65, 65, 60, 110, 95, 130, [discharge, body_slam])
+nidoking = Pokemon("Nidoking", ['ground', 'poison'], 81, 102, 77, 85, 75, 85, [dig, stone_edge])
+dragonite = Pokemon("Dragonite", ['dragon', 'flying'], 91, 134, 95, 100, 100, 80, [])
+gengar = Pokemon("Gengar", ['ghost', 'poison'], 60, 65, 60, 130, 75, 110, [])
+alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 135, 95, 120, [])
+machamp = Pokemon("Machamp", ['fighting', ''], 90, 130, 80, 65, 85, 55, [])
+magneton = Pokemon("Magneton", ['electric', 'steel'], 50, 60, 95, 120, 70, 70, [])
+golem = Pokemon("Golem", ['rock', 'ground'], 80, 120, 130, 55, 65, 45, [])
+snorlax = Pokemon("Snorlax", ['normal', ''], 160, 110, 65, 65, 110, 30, [])
+cloyster = Pokemon("Cloyster", ['water', 'ice'], 50, 95, 180, 85, 45, 70, [])
 
 player1 = Trainer([pidgeot, blastoise, nidoking], 2, 1, 1, "Red")
-cpu = Trainer([venusaur, jolteon, charizard], 0, 3, 0, "Steven")
+cpu = Trainer([venusaur, jolteon, charizard], 0, 3, 0, "Blue")
 
 
 def start_fight(trainer, other_trainer):
