@@ -10,14 +10,19 @@ def delayed_print(s):
 
 #creates type dis/advantes for fire, water, and grass types
 type_advantages = {
-'grass':['water', 'ground', 'rock'], 'water':['fire', 'ground', 'rock'], 'fire':['grass', 'ice'],
-'electric':['flying', 'water'], 'flying':['grass'], 'ground':['fire', 'electric', 'rock'],
-'ice':['flying', 'ground', 'grass'], 'rock':['flying', 'fire', 'ice'], 'normal':[]
+'grass':['water', 'ground', 'rock'], 'water':['fire', 'ground', 'rock'], 'fire':['grass', 'ice', 'bug', 'steel'],
+'electric':['flying', 'water'], 'flying':['grass', 'fighting', 'bug'], 'ground':['fire', 'electric', 'rock', 'poison', 'steel'],
+'ice':['flying', 'ground', 'grass', 'dragon'], 'rock':['flying', 'fire', 'ice', 'bug'], 'normal':[], 'fighting':['normal', 'rock', 'ice', 'steel', 'dark'],
+'steel':['rock', 'ice', 'fairy'], 'psychic':['fighting', 'poison'], 'poison':['grass', 'fairy'], 'bug':['grass', 'psychic', 'dark'],
+'dragon':['dragon'], 'dark':['ghost', 'psychic'], 'fairy':['fighting', 'dragon', 'dark'], 'ghost':['ghost', 'psychic'], '':[]
 }
 type_disadvantages = {
-'water':['grass', 'electric'], 'fire':['water', 'ground', 'rock'], 'grass':['fire', 'flying', 'ice'],
+'water':['grass', 'electric'], 'fire':['water', 'ground', 'rock'], 'grass':['fire', 'flying', 'ice', 'poison', 'bug'],
 'electric':['ground'], 'flying':['electric', 'rock', 'ice'], 'ground':['grass', 'water', 'ice'],
-'ice':['rock', 'fire'], 'rock':['ground', 'water', 'grass'], 'normal':[]
+'ice':['rock', 'fire', 'fighting', 'steel'], 'rock':['ground', 'water', 'grass', 'fighting', 'steel'], 'normal':['fighting'],
+'fighting':['flying'], 'steel':['fighting', 'ground', 'fire'], 'psychic':['dark', 'bug', 'ghost'], 'poison':['ground', 'psychic'],
+'bug':['flying', 'rock', 'fire'], 'dragon':['ice', 'dragon', 'fairy'], 'dark':['fighting', 'bug', 'fairy'], 'fairy':['poison', 'steel'],
+'ghost':['ghost', 'dark'], '':[]
  }
 
 flamethrower = [90, 'fire', "Flamethrower"]
@@ -34,15 +39,15 @@ slash = [70, 'normal', "Slash"]
 solar_beam = [120, 'grass', "Solar Beam"]
 
 class Pokemon:
-    def __init__(self, name, type, base_hp, base_attack, base_defense, base_speed, move_list, level=5):
+    def __init__(self, name, types, base_hp, base_attack, base_defense, base_speed, move_list, level=5):
         self.name = name
         self.level = level
-        self.type = type
+        self.types = types
         self.max_health = 110 + (2*base_hp)
         self.current_health = self.max_health
         self.knocked_out = False
-        self.weakness = type_disadvantages.get(type)
-        self.advantage = type_advantages.get(type)
+        self.weakness = type_disadvantages.get(types[0]) + type_disadvantages.get(types[1])
+        self.advantage = type_advantages.get(types[0]) + type_advantages.get(types[1])
         self.attackst = (2*base_attack) + 5
         self.defensest = (2*base_defense) + 5
         self.speedst = (2*base_speed) + 5
@@ -50,7 +55,7 @@ class Pokemon:
 
     def __repr__(self):
         #printing a pokemon displays its name, type, level, and its hit points
-        return "the {type} type pokemon {name}, with {hp} hit points remaining".format(type=self.type, name=self.name, hp=self.current_health)
+        return "the {type1} type pokemon {name}, with {hp} hit points remaining".format(type1=self.types[0], name=self.name, hp=self.current_health)
 
     def gain_health(self, amount):
         #takes a health potion and applies the health to the pokemon
@@ -97,11 +102,11 @@ class Pokemon:
             movetype = move[1]
             movename = move[2]
             #changes the modifiers based on type mathcups, criticals, and stab
-            if movetype == opposing_pokemon.type:
+            if movetype in opposing_pokemon.types:
                 sametype = 0.5
             if crit_random == 6:
                 critical = 2
-            if self.type == movetype:
+            if movetype in self.types:
                 stab = 1.5
             if movetype in opposing_pokemon.weakness:
                 typeadv = 2
@@ -211,12 +216,17 @@ class Trainer:
                 self.current_pokemon = new_active
 
 
-charizard = Pokemon("Charizard", 'fire', 80, 84, 78, 100, [flamethrower, fly], 100)
-venusaur = Pokemon("Venusaur", 'grass', 78, 82, 83, 80, [giga_drain, solar_beam], 100)
-blastoise = Pokemon("Blastoise", 'water', 79, 83, 100, 78, [aqua_tail, ice_beam], 100)
-pidgeot = Pokemon("Pidgeot", 'flying', 83, 80, 75, 101, [sky_attack, slash], 100)
-jolteon = Pokemon("Jolteon", 'electric', 65, 65, 60, 130, [discharge, body_slam], 100)
-nidoking = Pokemon("Nidoking", 'ground', 81, 102, 77, 85, [dig, stone_edge], 100)
+charizard = Pokemon("Charizard", ['fire', 'flying'], 80, 84, 78, 100, [flamethrower, fly], 100)
+venusaur = Pokemon("Venusaur", ['grass', 'poison'], 78, 82, 83, 80, [giga_drain, solar_beam], 100)
+blastoise = Pokemon("Blastoise", ['water', ''], 79, 83, 100, 78, [aqua_tail, ice_beam], 100)
+pidgeot = Pokemon("Pidgeot", ['flying', 'normal'], 83, 80, 75, 101, [sky_attack, slash], 100)
+jolteon = Pokemon("Jolteon", ['electric', ''], 65, 65, 60, 130, [discharge, body_slam], 100)
+nidoking = Pokemon("Nidoking", ['ground', 'poison'], 81, 102, 77, 85, [dig, stone_edge], 100)
+dragonite = Pokemon("Dragonite", ['dragon', 'flying'], 91, 134, 95, 80, [], 100)
+gengar = Pokemon("Gengar", ['ghost', 'poison'], 60, 65, 60, 110, [], 100)
+alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 120, [], 100)
+machamp = Pokemon("Machamp", ['fighting', ''], 90, 130, 80, 55, [], 100)
+magneton = Pokemon("Magneton", ['electric', 'steel'], 50, 60, 95, 70, [], 100)
 
 player1 = Trainer([pidgeot, blastoise, nidoking], 2, 1, 1, "Red")
 cpu = Trainer([venusaur, jolteon, charizard], 0, 3, 0, "Steven")
@@ -249,12 +259,16 @@ def start_fight(trainer, other_trainer):
         if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == True:
             trainer_weaknesses = trainer.pokemon_list[trainer.current_pokemon].weakness
             for pokemon in other_trainer.pokemon_list:
-                if pokemon.type in trainer_weaknesses and pokemon.knocked_out == False:
+                if pokemon.types[0] in trainer_weaknesses and pokemon.knocked_out == False:
+                    pokeindex = other_trainer.pokemon_list.index(pokemon)
+                    other_trainer.switch_active_pokemon(pokeindex)
+                    break
+                elif pokemon.types[1] in trainer_weaknesses and pokemon.knocked_out == False:
                     pokeindex = other_trainer.pokemon_list.index(pokemon)
                     other_trainer.switch_active_pokemon(pokeindex)
                     break
                 #if none of the cpus pokemon are super effective against trainer1, it makes a random switch to any pokemon that hasn't fainted
-                elif pokemon.type not in trainer_weaknesses and pokemon.knocked_out == False:
+                elif pokemon.types not in trainer_weaknesses and pokemon.knocked_out == False:
                     pokeindex = other_trainer.pokemon_list.index(pokemon)
                     other_trainer.switch_active_pokemon(pokeindex)
                     break
