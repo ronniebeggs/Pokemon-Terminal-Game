@@ -29,6 +29,7 @@ flamethrower = [90, 'fire', "Flamethrower", 1]
 fire_punch = [75, 'fire', "Fire Punch", 0]
 giga_drain = [75, 'grass', "Giga Drain", 1]
 solar_beam = [120, 'grass', "Solar Beam", 1]
+energy_ball = [90, 'grass', "Energy Ball", 1]
 aqua_tail = [90, 'water', "Aqua Tail", 0]
 dive = [80, 'water', "Dive", 0]
 sky_attack = [120, 'flying', "Sky Attack", 0]
@@ -53,9 +54,9 @@ dynamic_punch = [100, 'fighting', "Dynamic Punch", 0]
 brick_break = [75, 'fighting', "Brick Break", 0]
 throat_chop = [80, 'dark', "Throat Chop", 0]
 bite = [60, 'dark', "Bite", 0]
-#protect = [None, 'normal', "Protect", 2]
-#recover = [None, 'normal', "Recover", 2]
-
+protect = [None, 'normal', "Protect", 2]
+recover = [None, 'normal', "Recover", 2]
+rest = [None, 'normal', "Recover", 2]
 
 class Pokemon:
     def __init__(self, name, types, base_hp, base_attack, base_defense, base_spatk, base_spdef, base_speed, move_list, level=100):
@@ -164,9 +165,9 @@ class Pokemon:
             #prints the restult of the type matchup
             if critical == 2:
                 print("Critical Hit!")
-            if typeadv == 2:
+            if typeadv == 2 or typeadv == 4:
                 print("It's Super Effective!")
-            elif typeadv == 0.5:
+            elif typeadv == 0.5 or typeadv == 0.25:
                 print("It's Not Very Effective!")
             opposing_pokemon.lose_health(damage)
 
@@ -198,8 +199,23 @@ class Trainer:
         whitespace_bars = 20 - lenbars
         if lenbars < 20:
             for i in range(whitespace_bars):
-                bars += "-"
-        print("{pokemon_name} \t |{bars}|".format(bars=bars, pokemon_name=self.pokemon_list[self.current_pokemon].name))
+                bars += " "
+        print("{pokemon_name}   \t   |{bars}|".format(bars=bars, pokemon_name=self.pokemon_list[self.current_pokemon].name))
+
+    def find_pokemon_remaining(self):
+        pokemon_remaining = 0
+        pokeball_icon = "("
+        for pokemon in self.pokemon_list:
+            if pokemon.knocked_out == False:
+                pokemon_remaining += 1
+                pokeball_icon += "o"
+            else:
+                pokeball_icon += "ø"
+            if self.pokemon_list.index(pokemon) == (len(self.pokemon_list) - 1):
+                break
+            pokeball_icon += ":"
+        pokeball_icon += ")"
+        return self.trainer_name + " - " + pokeball_icon
 
     def open_bag(self, raw_choice, bag_decision):
         #makes sure that the trainer has enough potions before using them, then increases the health of the current pokemon
@@ -214,6 +230,8 @@ class Trainer:
         else:
             if self.pokemon_list[pokemon_choice].current_health == self.pokemon_list[pokemon_choice].max_health:
                 print("\nYou are unable to use a potion on a pokemon with max health!")
+            elif self.pokemon_list[pokemon_choice].knocked_out == True:
+                print("\nYou are unable to use a potion on a pokemon that has fainted!")
             else:
                 if bag_decision == 1 and self.potions > 0:
                     print("\n{trainer} used a potion on {pokemon}.".format(trainer=self.trainer_name, pokemon=self.pokemon_list[pokemon_choice].name))
@@ -259,6 +277,7 @@ class Trainer:
                 self.current_pokemon = new_active
 
 
+#instantiates each pokemon with stats, moves, types, and name
 charizard = Pokemon("Charizard", ['fire', 'flying'], 78, 84, 78, 109, 85, 100, [flamethrower, fly, steel_wing])
 venusaur = Pokemon("Venusaur", ['grass', 'poison'], 80, 82, 83, 100, 100, 80, [giga_drain, solar_beam, sludge_bomb])
 blastoise = Pokemon("Blastoise", ['water', ''], 79, 83, 100, 85, 105, 78, [aqua_tail, ice_beam, bite])
@@ -267,13 +286,13 @@ jolteon = Pokemon("Jolteon", ['electric', ''], 65, 65, 60, 110, 95, 130, [thunde
 nidoking = Pokemon("Nidoking", ['ground', 'poison'], 81, 102, 77, 85, 75, 85, [earthquake, stone_edge, poison_jab])
 dragonite = Pokemon("Dragonite", ['dragon', 'flying'], 91, 134, 95, 100, 100, 80, [dragon_claw, sky_attack, fire_punch])
 gengar = Pokemon("Gengar", ['ghost', 'poison'], 60, 65, 60, 130, 75, 110, [sludge_bomb, shadow_ball, giga_drain])
-alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 135, 95, 120, [psychic, dazzling_gleam])
+alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 135, 95, 120, [psychic, dazzling_gleam, recover])
 machamp = Pokemon("Machamp", ['fighting', ''], 90, 130, 80, 65, 85, 55, [dynamic_punch, strength, throat_chop])
-snorlax = Pokemon("Snorlax", ['normal', ''], 160, 110, 65, 65, 110, 30, [body_slam, brick_break])
-cloyster = Pokemon("Cloyster", ['water', 'ice'], 50, 95, 180, 85, 45, 70, [avalanche, dive])
-
-player1 = Trainer([charizard, venusaur, blastoise, pidgeot, machamp, nidoking], 2, 1, 1, "Red")
-cpu = Trainer([cloyster, gengar, jolteon, snorlax, alakazam, dragonite], 0, 3, 0, "Blue")
+snorlax = Pokemon("Snorlax", ['normal', ''], 160, 110, 65, 65, 110, 30, [body_slam, brick_break, rest])
+cloyster = Pokemon("Cloyster", ['water', 'ice'], 50, 95, 180, 85, 45, 70, [avalanche, dive, protect])
+#instantiates both trainers with pokemon lists, and potion counts
+player1 = Trainer([blastoise, venusaur, charizard, pidgeot, machamp, nidoking], 2, 1, 1, "Red")
+cpu = Trainer([dragonite, gengar, jolteon, snorlax, alakazam, cloyster], 0, 3, 0, "Blue")
 
 
 def start_fight(trainer, other_trainer):
@@ -282,6 +301,8 @@ def start_fight(trainer, other_trainer):
     #creates a for loop that continues until either trainer loses
     end_fight = False
     while end_fight == False:
+
+        #saves list of pokemon to a variable to be used multiple times
         current_list_pokemon = "\nList of Pokemon: \n1. {poke1} \t{poke1current}/{poke1max} \n2. {poke2} \t{poke2current}/{poke2max} \n3. {poke3} \t{poke3current}/{poke3max} \n4. {poke4} \t{poke4current}/{poke4max} \n5. {poke5} \t{poke5current}/{poke5max} \n6. {poke6} \t{poke6current}/{poke6max}".format(
         poke1=trainer.pokemon_list[0].name, poke1current=trainer.pokemon_list[0].current_health, poke1max=trainer.pokemon_list[0].max_health,
         poke2=trainer.pokemon_list[1].name, poke2current=trainer.pokemon_list[1].current_health, poke2max=trainer.pokemon_list[1].max_health,
@@ -290,128 +311,173 @@ def start_fight(trainer, other_trainer):
         poke5=trainer.pokemon_list[4].name, poke5current=trainer.pokemon_list[4].current_health, poke5max=trainer.pokemon_list[4].max_health,
         poke6=trainer.pokemon_list[5].name, poke6current=trainer.pokemon_list[5].current_health, poke6max=trainer.pokemon_list[5].max_health
         )
+
+
+        #CPU AND USER PRE-ROUND SWITCHES IF POKEMON HAS FAINTED:
         #checks to see if the current pokemon has fainted - if so, forces you to switch pokemon
         if trainer.pokemon_list[trainer.current_pokemon].knocked_out == True:
             #makes sure that the user makes a valid decision
             options = range(len(trainer.pokemon_list))
             while trainer.pokemon_list[trainer.current_pokemon].knocked_out == True:
+                #if user input is not in a list of options, they are given the option to redo their input until it's valid
                 print("\nCurrent Pokemon has fainted. Must be switched out.")
                 print(current_list_pokemon)
                 switch_decision = int(input("Switch to: "))
                 if switch_decision not in options:
                     print("\n*Not a valid option! Try again!")
                 trainer.switch_active_pokemon(switch_decision - 1)
-
-        #if cpu current pokemon has fainted, it forces it to switch out
-        #if one of the cpu's pokemon is super effective against trainer1, it switches to that one
+        #if cpu current pokemon has fainted, it's forced to switch out
         if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == True:
+            #takes a list of the trainer's weaknesses and loops through pokemon list to find a super effective matchup
             trainer_weaknesses = trainer.pokemon_list[trainer.current_pokemon].weakness
+            find_othertrainer_switch = False
             for pokemon in other_trainer.pokemon_list:
+                #checks if either type of iterated pokemon creates a super effective matchup
                 if pokemon.types[0] in trainer_weaknesses and pokemon.knocked_out == False:
                     pokeindex = other_trainer.pokemon_list.index(pokemon)
                     other_trainer.switch_active_pokemon(pokeindex)
+                    find_othertrainer_switch = True
                     break
                 elif pokemon.types[1] in trainer_weaknesses and pokemon.knocked_out == False:
                     pokeindex = other_trainer.pokemon_list.index(pokemon)
                     other_trainer.switch_active_pokemon(pokeindex)
+                    find_othertrainer_switch = True
                     break
-                #if none of the cpus pokemon are super effective against trainer1, it makes a random switch to any pokemon that hasn't fainted
-                elif pokemon.types not in trainer_weaknesses and pokemon.knocked_out == False:
-                    pokeindex = other_trainer.pokemon_list.index(pokemon)
-                    other_trainer.switch_active_pokemon(pokeindex)
-                    break
+            #if they can't find a good matchup, it randomly choses an alive pokemon to switch in
+            if find_othertrainer_switch == False:
+                current_fainted = True
+                while current_fainted == True:
+                    random_switch = random.randint(1, len(other_trainer.pokemon_list))
+                    if other_trainer.pokemon_list[random_switch - 1].knocked_out == True:
+                        continue
+                    else:
+                        current_fainted = False
+                other_trainer.switch_active_pokemon(random_switch - 1)
 
-        print("\n----------POKEMON BATTLE----------\n")
+
+        #BEGINNING OF TURN:
+        print("\n----------POKEMON BATTLE----------")
+        print("{trainer1pokemon} \t {trainer2pokemon}\n".format(trainer1pokemon=trainer.find_pokemon_remaining(), trainer2pokemon=other_trainer.find_pokemon_remaining()))
         trainer.find_bars()
         other_trainer.find_bars()
 
-        #gives you an attack, use potion, or switch pokemon option
-        valid_option = False
-        while valid_option == False:
-            firstoptions = (1, 2, 3)
-            print("\n1. Attack \n2. Bag \n3. Switch Pokemon")
-            user_decision = int(input("What will you do: "))
-            if user_decision in firstoptions:
-                valid_option = True
-            else:
-                print("\n*Not a valid option! Try Again!")
 
-        #gives you the attack options and executes them
-        if user_decision == 1:
-            print("")
-            move_counter = 1
-            for move in trainer.pokemon_list[trainer.current_pokemon].move_list:
-                print("{number}. {move}".format(number=move_counter, move=move[2]))
-                move_counter += 1
-            attack_decision = int(input("Which attack will you use: "))
-            options = range(len(trainer.pokemon_list[trainer.current_pokemon].move_list) + 1)
-            if attack_decision not in options:
-                valid_option = False
-                while valid_option == False:
-                    print("\n*Not a valid option! Try Again!\n")
-                    move_counter = 1
-                    for move in trainer.pokemon_list[trainer.current_pokemon].move_list:
-                        print("{number}. {move}".format(number=move_counter, move=move[2]))
-                        move_counter += 1
-                    attack_decision = int(input("Which attack will you use: "))
-                    if attack_decision in options:
-                        valid_option = True
-        #opens bag to choose between potions and revives
-        if user_decision == 2:
-            print("\n1. Potion \t {potions} \n2. Max Potion \t {max_potions} \n3. Revive \t {revives}".format(potions=trainer.potions, max_potions=trainer.max_potions, revives=trainer.revives))
-            bag_decision = int(input("Use: "))
-            options = (1, 2, 3)
-            if bag_decision not in options:
-                valid_option = False
-                while valid_option == False:
-                    print("\n*Not a valid option! Try Again!")
-                    print("\n1. Potion \t {potions} \n2. Max Potion \t {max_potions} \n3. Revive \t {revives}".format(potions=trainer.potions, max_potions=trainer.max_potions, revives=trainer.revives))
-                    user_decision = int(input("Use: "))
-                    if user_decision in options:
-                        valid_option = True
-            print(current_list_pokemon)
-            pokemon_choice = int(input("On which pokemon: "))
-            if bag_decision not in options:
-                valid_option = False
-                while valid_option == False:
-                    print("\n*Not a valid option! Try Again!")
-                    print(current_list_pokemon)
-                    user_decision = int(input("On which pokemon: "))
-                    if user_decision in options:
-                        valid_option = True
-        #gives you the switch pokemon option
-        elif user_decision == 3:
-            print(current_list_pokemon)
-            switch_decision = int(input("Switch to: "))
-            options = range(len(trainer.pokemon_list) + 1)
-            #checks to see if the decision is valid, if not, they are forced to change it
-            if switch_decision not in options:
-                valid_option = False
-                while valid_option == False:
-                    print("\n*Not a valid option! Try Again!")
-                    print(current_list_pokemon)
-                    switch_decision = int(input("Switch to: "))
-                    if switch_decision in options:
-                        valid_option = True
-
+        #CPU DECISION MAKING PROCESS:
         other_trainer_usepotion = False
         other_trainer_attack = False
-        if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
-            #if cpu current pokemon's health is below 1/4 of the max, it will use a potion - else: will attack with random decision
-            if (other_trainer.pokemon_list[other_trainer.current_pokemon].current_health <= (other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 4)) and other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
-                if other_trainer.max_potions > 0:
-                    potion_or_attack = random.randint(1, 3)
-                    if potion_or_attack == 2:
-                        other_trainer_usepotion = True
-            else:
-                other_trainer_attack = True
-                for move in other_trainer.pokemon_list[other_trainer.current_pokemon].move_list:
-                    if move[1] in trainer.pokemon_list[trainer.current_pokemon].weakness:
-                        opponent_decision = other_trainer.pokemon_list[other_trainer.current_pokemon].move_list.index(move)
-                        break
-                    else:
-                        opponent_decision = random.randint(1, len(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list))
+        #if cpu current pokemon's health is below 1/4 of the max, it will use a potion
+        potion_or_attack = random.randint(1, 3)
+        if (other_trainer.pokemon_list[other_trainer.current_pokemon].current_health <= (other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 4)) and potion_or_attack == 2:
+            if other_trainer.max_potions > 0:
+                other_trainer_usepotion = True
+        else:
+            #takes each current cpu moves and tries to find one that has an advantage against the opponent
+            other_trainer_attack = True
+            find_supereffective_move = False
+            for move in other_trainer.pokemon_list[other_trainer.current_pokemon].move_list:
+                if move[1] in trainer.pokemon_list[trainer.current_pokemon].weakness:
+                    opponent_decision = other_trainer.pokemon_list[other_trainer.current_pokemon].move_list.index(move)
+                    find_supereffective_move = True
+                    break
+            #randomly choses an attack if it can't find an advantageous move
+            if find_supereffective_move == False:
+                opponent_decision = random.randint(1, len(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list))
 
+
+        #USER DECISION MAKING PROCESS:
+        #starts by creating a loop that allows a back button to function
+        #if the user inputs '0', it will restart the loop allowing the user to redo their decisions
+        back_input = 0
+        confirmed_option = False
+        first_back = True
+        while confirmed_option == False:
+            if first_back == False:
+                print("<<< Back")
+            print("----------------------------------")
+            #gives you an attack, use potion, or switch pokemon option
+            valid_option = False
+            while valid_option == False:
+                basic_options = (1, 2, 3)
+                print("\n1. Attack \n2. Bag \n3. Switch Pokemon")
+                user_decision = int(input("What will you do: "))
+                if user_decision in basic_options:
+                    valid_option = True
+                else:
+                    print("\n*Not a valid option! Try Again!")
+            #gives you the attack options and executes them
+            if user_decision == 1:
+                print("")
+                move_counter = 1
+                for move in trainer.pokemon_list[trainer.current_pokemon].move_list:
+                    print("{number}. {move}".format(number=move_counter, move=move[2]))
+                    move_counter += 1
+                attack_decision = int(input("Which attack will you use: "))
+                if attack_decision == back_input:
+                    first_back = False
+                    continue
+                move_options = range(len(trainer.pokemon_list[trainer.current_pokemon].move_list) + 1)
+                if attack_decision not in move_options:
+                    valid_option = False
+                    while valid_option == False:
+                        print("\n*Not a valid option! Try Again!\n")
+                        move_counter = 1
+                        for move in trainer.pokemon_list[trainer.current_pokemon].move_list:
+                            print("{number}. {move}".format(number=move_counter, move=move[2]))
+                            move_counter += 1
+                        attack_decision = int(input("Which attack will you use: "))
+                        if attack_decision in move_options:
+                            valid_option = True
+            #opens bag to choose between potions and revives
+            if user_decision == 2:
+                print("\n1. Potion \t {potions} \n2. Max Potion \t {max_potions} \n3. Revive \t {revives}".format(potions=trainer.potions, max_potions=trainer.max_potions, revives=trainer.revives))
+                bag_decision = int(input("What item will you use: "))
+                if bag_decision == back_input:
+                    first_back = False
+                    continue
+                bag_options = (1, 2, 3)
+                if bag_decision not in bag_options:
+                    valid_option = False
+                    while valid_option == False:
+                        print("\n*Not a valid option! Try Again!")
+                        print("\n1. Potion \t {potions} \n2. Max Potion \t {max_potions} \n3. Revive \t {revives}".format(potions=trainer.potions, max_potions=trainer.max_potions, revives=trainer.revives))
+                        user_decision = int(input("What item will you use: "))
+                        if user_decision in bag_options:
+                            valid_option = True
+                print(current_list_pokemon)
+                pokemon_choice = int(input("Use item on which pokemon: "))
+                if pokemon_choice == back_input:
+                    first_back = False
+                    continue
+                pokeitem_options = range(len(trainer.pokemon_list) + 1)
+                if pokemon_choice not in pokeitem_options:
+                    valid_option = False
+                    while valid_option == False:
+                        print("\n*Not a valid option! Try Again!")
+                        print(current_list_pokemon)
+                        pokemon_choice = int(input("Use item on which pokemon: "))
+                        if pokemon_choice in pokeitem_options:
+                            valid_option = True
+            #gives you the switch pokemon option
+            elif user_decision == 3:
+                print(current_list_pokemon)
+                switch_decision = int(input("Switch pokemon: "))
+                if switch_decision == back_input:
+                    first_back = False
+                    continue
+                pokeswitch_options = range(len(trainer.pokemon_list) + 1)
+                #checks to see if the decision is valid, if not, they are forced to change it
+                if switch_decision not in pokeswitch_options:
+                    valid_option = False
+                    while valid_option == False:
+                        print("\n*Not a valid option! Try Again!")
+                        print(current_list_pokemon)
+                        switch_decision = int(input("Switch pokemon: "))
+                        if switch_decision in pokeswitch_options:
+                            valid_option = True
+            confirmed_option = True
+
+
+        #EXECUTION OF CPU AND USER DECISIONS:
         #performs use_potions and switches at the beginning of a turn
         trainer_dont_attack = False
         if user_decision == 2:
@@ -428,24 +494,24 @@ def start_fight(trainer, other_trainer):
         if trainer.pokemon_list[trainer.current_pokemon].speedst >= other_trainer.pokemon_list[other_trainer.current_pokemon].speedst:
             if user_decision == 1 and trainer_dont_attack == False:
                 trainer.attack_opposing_trainer(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision - 1)])
-
             #checks to make sure that the current pokemon hasn't fainted
             if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
                 #checks to see if a potion was used
                 if other_trainer_attack == True and other_trainer_usepotion == False:
                     #decides which attack the cpu will use depending on previous code
-                    other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision - 1])
+                    other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
 
         else:
             #checks to see if a potion was used, determining whether the cpu will attack
             if other_trainer_attack == True and other_trainer_usepotion == False:
                 #randomly decides which attack the cpu will use
-                other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision - 1])
-
+                other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
             #makes sure the currnet pokemon is alive, and hasn't already used a potion
             if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer_dont_attack == False:
                 trainer.attack_opposing_trainer(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision - 1)])
 
+
+        #CHECKS WHETHER THE ROUND HAS ENDED:
         #if all pokemon have fainted on either side, the fight ends
         faint_counter = 0
         for pokemon in trainer.pokemon_list:
@@ -462,6 +528,8 @@ def start_fight(trainer, other_trainer):
             other_trainer.lost_fight = True
             end_fight = True
 
+
+    #END OF BATTLE MESSAGES:
     #displays winning or losing messages at the end of a battle, and randomly decides the prize money
     earnings = random.randint(200, 1000)
     if trainer.lost_fight == True:
