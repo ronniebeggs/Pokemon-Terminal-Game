@@ -407,10 +407,10 @@ def start_fight(trainer, other_trainer):
         #starts by creating a loop that allows a back button to function
         #if the user inputs '0', it will restart the loop allowing the user to redo their decisions
         back_input = 0
-        back_button_pressed = False
         confirmed_option = False
         first_back = True
         while confirmed_option == False:
+            back_button_pressed = False
             if first_back == False:
                 print("<<< Back")
             print("----------------------------------")
@@ -425,15 +425,15 @@ def start_fight(trainer, other_trainer):
                     print("\n*Decision must be an Integer!")
                     continue
                 if user_decision in basic_options:
-                    back_button_pressed = True
-                    break
+                    valid_option = True
                 else:
                     print("\n*Not a valid option! Try Again!")
                     continue
             #gives you the attack options and executes them
             if user_decision == 1:
                 print("")
-                move_options = range(len(trainer.pokemon_list[trainer.current_pokemon].move_list) + 1)
+                move_options = range(1, len(trainer.pokemon_list[trainer.current_pokemon].move_list) + 1)
+                print(len(trainer.pokemon_list[trainer.current_pokemon].move_list) + 1)
                 valid_option = False
                 while valid_option == False:
                     for move_number, move in enumerate(trainer.pokemon_list[trainer.current_pokemon].move_list):
@@ -470,7 +470,7 @@ def start_fight(trainer, other_trainer):
                     else:
                         print("\n*Not a valid option! Try Again!")
                         continue
-                pokeitem_options = range(len(trainer.pokemon_list) + 1)
+                pokeitem_options = range(1, len(trainer.pokemon_list) + 1)
                 valid_option = False
                 while valid_option == False:
                     print(current_list_pokemon)
@@ -489,7 +489,7 @@ def start_fight(trainer, other_trainer):
                         continue
             #gives you the switch pokemon option
             elif user_decision == 3:
-                pokeswitch_options = range(len(trainer.pokemon_list) + 1)
+                pokeswitch_options = range(1, len(trainer.pokemon_list) + 1)
                 valid_option = False
                 while valid_option == False:
                     print(current_list_pokemon)
