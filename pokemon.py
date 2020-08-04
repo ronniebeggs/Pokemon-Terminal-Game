@@ -1,3 +1,4 @@
+#creates an altered print function that prints text letter by letter
 import random
 import time
 import sys
@@ -9,21 +10,98 @@ def delayed_print(s):
     time.sleep(0.50)
 
 #creates type dis/advantes for fire, water, and grass types
-type_advantages = {
-'grass':['water', 'ground', 'rock'], 'water':['fire', 'ground', 'rock'], 'fire':['grass', 'ice', 'bug', 'steel'],
-'electric':['flying', 'water'], 'flying':['grass', 'fighting', 'bug'], 'ground':['fire', 'electric', 'rock', 'poison', 'steel'],
-'ice':['flying', 'ground', 'grass', 'dragon'], 'rock':['flying', 'fire', 'ice', 'bug'], 'normal':[], 'fighting':['normal', 'rock', 'ice', 'steel', 'dark'],
-'steel':['rock', 'ice', 'fairy'], 'psychic':['fighting', 'poison'], 'poison':['grass', 'fairy'], 'bug':['grass', 'psychic', 'dark'],
-'dragon':['dragon'], 'dark':['ghost', 'psychic'], 'fairy':['fighting', 'dragon', 'dark'], 'ghost':['ghost', 'psychic'], '':[]
+offensive_advantages = {
+    'grass':['water', 'ground', 'rock'],
+    'water':['fire', 'ground', 'rock'],
+    'fire':['grass', 'ice', 'bug', 'steel'],
+    'electric':['flying', 'water'],
+    'flying':['grass', 'fighting', 'bug'],
+    'ground':['fire', 'electric', 'rock', 'poison', 'steel'],
+    'ice':['flying', 'ground', 'grass', 'dragon'],
+    'rock':['flying', 'fire', 'ice', 'bug'], 'normal':[],
+    'fighting':['normal', 'rock', 'ice', 'steel', 'dark'],
+    'steel':['rock', 'ice', 'fairy'],
+    'psychic':['fighting', 'poison'],
+    'poison':['grass', 'fairy'],
+    'bug':['grass', 'psychic', 'dark'],
+    'dragon':['dragon'],
+    'dark':['ghost', 'psychic'],
+    'fairy':['fighting', 'dragon', 'dark'],
+    'ghost':['ghost', 'psychic'],
+    '':['']
 }
-type_disadvantages = {
-'water':['grass', 'electric'], 'fire':['water', 'ground', 'rock'], 'grass':['fire', 'flying', 'ice', 'poison', 'bug'],
-'electric':['ground'], 'flying':['electric', 'rock', 'ice'], 'ground':['grass', 'water', 'ice'],
-'ice':['rock', 'fire', 'fighting', 'steel'], 'rock':['ground', 'water', 'grass', 'fighting', 'steel'], 'normal':['fighting'],
-'fighting':['flying', 'psychic', 'fairy'], 'steel':['fighting', 'ground', 'fire'], 'psychic':['dark', 'bug', 'ghost'], 'poison':['ground', 'psychic'],
-'bug':['flying', 'rock', 'fire'], 'dragon':['ice', 'dragon', 'fairy'], 'dark':['fighting', 'bug', 'fairy'], 'fairy':['poison', 'steel'],
-'ghost':['ghost', 'dark'], '':[]
- }
+defensive_weaknesses = {
+    'water':['grass', 'electric'],
+    'fire':['water', 'ground', 'rock'],
+    'grass':['fire', 'flying', 'ice', 'poison', 'bug'],
+    'electric':['ground'],
+    'flying':['electric', 'rock', 'ice'],
+    'ground':['grass', 'water', 'ice'],
+    'ice':['rock', 'fire', 'fighting', 'steel'],
+    'rock':['ground', 'water', 'grass', 'fighting', 'steel'],
+    'normal':['fighting'],
+    'fighting':['flying', 'psychic', 'fairy'],
+    'steel':['fighting', 'ground', 'fire'],
+    'psychic':['dark', 'bug', 'ghost'],
+    'poison':['ground', 'psychic'],
+    'bug':['flying', 'rock', 'fire'],
+    'dragon':['ice', 'dragon', 'fairy'],
+    'dark':['fighting', 'bug', 'fairy'],
+    'fairy':['poison', 'steel'],
+    'ghost':['ghost', 'dark'],
+    '':['']
+}
+resistances = {
+    'grass':['electric', 'grass', 'ground', 'water'],
+    'water':['fire', 'ice', 'steel', 'water'],
+    'fire':['bug', 'fire', 'grass', 'ice', 'steel'],
+    'electric':['electric', 'flying', 'steel'],
+    'flying':['bug', 'fighting', 'grass'],
+    'ground':['poison', 'rock'],
+    'ice':['ice'],
+    'rock':['fire', 'flying', 'normal', 'poison'],
+    'fighting':['bug', 'dark', 'rock'],
+    'steel':['bug', 'dragon', 'fairy', 'flying', 'grass', 'ice', 'normal', 'psychic', 'rock', 'steel'],
+    'psychic':['fighting', 'psychic'],
+    'poison':['fighting', 'poison', 'bug', 'grass', 'fairy'],
+    'bug':['fighting', 'grass', 'ground'],
+    'dragon':['electric', 'fire', 'grass', 'water'],
+    'dark':['dark', 'ghost'],
+    'fairy':['bug', 'dark', 'fighting'],
+    'ghost':['bug', 'poison'],
+    'normal':[''],
+    '':['']
+}
+weak_against = {
+    'grass':['grass', 'fire', 'flying', 'steel', 'poison', 'bug', 'dragon'],
+    'water':['grass', 'water', 'dragon'],
+    'fire':['water', 'fire', 'rock', 'dragon'],
+    'electric':['grass', 'electric', 'dragon'],
+    'flying':['electric', 'rock', 'steel'],
+    'ground':['grass', 'bug'],
+    'ice':['water', 'fire', 'ice', 'steel'],
+    'rock':['ground', 'fighting', 'steel'],
+    'fighting':['flying', 'psychic', 'poison', 'bug', 'fairy'],
+    'steel':['water', 'fire', 'electric', 'steel'],
+    'psychic':['steel', 'psychic'],
+    'poison':['ground', 'rock', 'poison', 'ghost'],
+    'bug':['fire', 'flying', 'fighting', 'steel', 'poison', 'fairy', 'ghost'],
+    'dragon':['steel'],
+    'dark':['fighting', 'dark', 'fairy'],
+    'fairy':['steel', 'poison',],
+    'ghost':['dark'],
+    'normal':[''],
+    '':['']
+}
+immunities = {
+    'ghost':['normal', 'fighting'],
+    'normal':['ghost'],
+    'flying':['ground'],
+    'steel':['poison'],
+    'ground':['electric'],
+    'dark':['psychic'],
+    'fairy':['dragon']
+}
 
 #move power, type, name, category
 flamethrower = [90, 'fire', "Flamethrower", 1]
@@ -68,8 +146,8 @@ class Pokemon:
         self.max_health = 110 + (2*base_hp)
         self.current_health = self.max_health
         self.knocked_out = False
-        self.weakness = type_disadvantages.get(types[0]) + type_disadvantages.get(types[1])
-        self.advantage = type_advantages.get(types[0]) + type_advantages.get(types[1])
+        self.weakness = defensive_weaknesses.get(types[0]) + defensive_weaknesses.get(types[1])
+        self.resists = resistances.get(types[0]) + resistances.get(types[1])
         self.attackst = (2*base_attack) + 5
         self.defensest = (2*base_defense) + 5
         self.sp_attackkst = (2*base_spatk) + 5
@@ -133,52 +211,54 @@ class Pokemon:
                 critical = 2
             if movetype in self.types:
                 stab = 1.3
-            #cycles through opponent pokemon weakness' and advantages and creates a value depending on the frequency of the movetype
-            type_counter = 0
-            for type in opposing_pokemon.weakness:
-                if movetype == type:
-                    type_counter += 1
-            for type in opposing_pokemon.advantage:
-                if movetype == type:
-                    type_counter -= 1
-            #changes the type dis/advantage multiplier depending on the previous value
-            if type_counter == -2:
-                typeadv = 0.25
-            elif type_counter == -1:
-                typeadv = 0.5
-            elif type_counter == 0:
-                typeadv = 1
-            elif type_counter == 1:
-                typeadv = 2
-            else:
-                typeadv = 4
-            #multiplies damage by the modifier and rounds the result
-            modifier = stab * critical * typeadv * sametype
-            if movecategory == 0:    #physical move
-                unrounded_damage = (((((2 * self.level / 6) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
-            elif movecategory == 1:     #special move
-                unrounded_damage = (((((2 * self.level / 6) + 2) * power * self.sp_attackkst / opposing_pokemon.sp_defensest) / 50) + 2) * modifier
-            else:
-                unrounded_damage = 0
-                print("Special Move")
-            damage = round(unrounded_damage, 0)
-            print(f"\n{self.name} attacked {opposing_pokemon.name} using {movename}!")
-            print(f"-{damage} hp")
-            #prints the restult of the type matchup
-            if critical == 2:
-                print("Critical Hit!")
-            if typeadv == 2 or typeadv == 4:
-                print("It's Super Effective!")
-            elif typeadv == 0.5 or typeadv == 0.25:
-                print("It's Not Very Effective!")
-            opposing_pokemon.lose_health(damage)
-
-    def special_case_move(self, opposing_pokemon, move):
-        if move[3] == 2:
-            print("special move")
-
-
-
+            #checks if opponent has an immunities
+            immunity = []
+            for type in immunities.keys():
+                if type in opposing_pokemon.types:
+                    immunity = immunities[type]
+            #if the opponent is immune to the attack, the attack will have no effect
+            if movetype in immunity:
+                print(f"\n{movename} has no affect on {opposing_pokemon.name}!")
+            else:            
+                #cycles through opponent pokemon weakness' and advantages and creates a value depending on the frequency of the movetype
+                type_counter = 0
+                for type in opposing_pokemon.weakness:
+                    if movetype == type:
+                        type_counter += 1
+                for type in opposing_pokemon.resists:
+                    if movetype == type:
+                        type_counter -= 1
+                #changes the type dis/advantage multiplier depending on the type_counter value
+                if type_counter == -2:
+                    typeadv = 0.25
+                elif type_counter == -1:
+                    typeadv = 0.5
+                elif type_counter == 0:
+                    typeadv = 1
+                elif type_counter == 1:
+                    typeadv = 2
+                else:
+                    typeadv = 4
+                #multiplies damage by the modifier and rounds the result           
+                modifier = stab * critical * typeadv * sametype
+                if movecategory == 0:    #physical move
+                    unrounded_damage = (((((2 * self.level / 6) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
+                elif movecategory == 1:     #special move
+                    unrounded_damage = (((((2 * self.level / 6) + 2) * power * self.sp_attackkst / opposing_pokemon.sp_defensest) / 50) + 2) * modifier
+                else:
+                    unrounded_damage = 0
+                    print("Special Move")
+                damage = round(unrounded_damage, 0)
+                print(f"\n{self.name} attacked {opposing_pokemon.name} using {movename}! \n-{damage} hp")
+                #prints the restult of the type matchup
+                if critical == 2:
+                    print("Critical Hit!")
+                if typeadv == 2 or typeadv == 4:
+                    print("It's Super Effective!")
+                elif typeadv == 0.5 or typeadv == 0.25:
+                    print("It's Not Very Effective!")
+                opposing_pokemon.lose_health(damage)
+                
 
 class Trainer:
     def __init__(self, pokemon_list, potions, max_potions, revives, trainer_name):
@@ -198,6 +278,8 @@ class Trainer:
         print(f"{self.pokemon_list[self.current_pokemon].name} is currently in battle.")
 
     def find_bars(self):
+        #splits current pokemon's health into 20 increments
+        #represents pokemons health with bars each round, and fills the damage taken with white spaces
         bar_increments = (self.pokemon_list[self.current_pokemon].max_health / 20)
         num_of_bars = round(int(self.pokemon_list[self.current_pokemon].current_health / bar_increments), 0)
         bars = ""
@@ -211,6 +293,7 @@ class Trainer:
         print(f"{self.pokemon_list[self.current_pokemon].name}   \t   |{bars}|")
 
     def find_pokemon_remaining(self):
+        #prints the pokeball icon that shows the status of both trainer's pokemon
         pokeball_icon = "("
         for index, pokemon in enumerate(self.pokemon_list):
             if pokemon.knocked_out == False:
@@ -220,6 +303,7 @@ class Trainer:
             if index == (len(self.pokemon_list) - 1):
                 break
             pokeball_icon += ":"
+        #if the trainer has less than 6 pokemon, it prints empty space in place for the pokeballs
         empty_icons = 6 - len(self.pokemon_list)
         if empty_icons > 0:
             for num in range(empty_icons):
@@ -232,17 +316,20 @@ class Trainer:
         potion = 50
         pokemon_choice = raw_choice - 1
         if bag_decision == 3:
+            #uses a revive only if the pokemon has already fainted
             if self.pokemon_list[pokemon_choice].knocked_out == True:
                 self.pokemon_list[pokemon_choice].revive()
                 self.revives -= 1
             else:
                 print("\nYou are unable to use a revive on a pokemon that is still alive!")
         else:
+            #makes sure that the current pokemon is alive with less than max health
             if self.pokemon_list[pokemon_choice].current_health == self.pokemon_list[pokemon_choice].max_health:
                 print("\nYou are unable to use a potion on a pokemon with max health!")
             elif self.pokemon_list[pokemon_choice].knocked_out == True:
                 print("\nYou are unable to use a potion on a pokemon that has fainted!")
             else:
+                #uses a potion -- cuts the potion size if it'd make the current health higher than the max health
                 if bag_decision == 1 and self.potions > 0:
                     print(f"\n{self.trainer_name} used a potion on {self.pokemon_list[pokemon_choice].name}.")
                     max_current_diff = (self.pokemon_list[pokemon_choice].max_health - self.pokemon_list[pokemon_choice].current_health)
@@ -253,6 +340,7 @@ class Trainer:
                     self.potions -= 1
                 elif bag_decision == 1 and self.potions == 0:
                     print("\nYou don't have any potions left!")
+                #takes the difference between the current and max health of the pokemon and adds it to the current health
                 if bag_decision == 2 and self.max_potions > 0:
                     print(f"\n{self.trainer_name} used a max potion on {self.pokemon_list[pokemon_choice].name}.")
                     max_current_diff = (self.pokemon_list[pokemon_choice].max_health - self.pokemon_list[pokemon_choice].current_health)
@@ -632,6 +720,5 @@ def start_fight(trainer, other_trainer):
     if other_trainer.lost_fight == True:
         print(f"\n{trainer.trainer_name} has defeated {other_trainer.trainer_name}! \n{trainer.trainer_name} got ${earnings} for winning!")
     return "Thanks for Playing!"
-
 
 print(start_fight(player1, cpu))
