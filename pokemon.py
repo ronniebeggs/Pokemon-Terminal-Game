@@ -103,39 +103,39 @@ immunities = {
     'fairy':['dragon']
 }
 
-#move power, type, name, category
-flamethrower = [90, 'fire', "Flamethrower", 1]
-fire_punch = [75, 'fire', "Fire Punch", 0]
-giga_drain = [75, 'grass', "Giga Drain", 1]
-solar_beam = [120, 'grass', "Solar Beam", 1]
-energy_ball = [90, 'grass', "Energy Ball", 1]
-aqua_tail = [90, 'water', "Aqua Tail", 0]
-dive = [80, 'water', "Dive", 0]
-sky_attack = [120, 'flying', "Sky Attack", 0]
-fly = [90, 'flying', "Fly", 0]
-thunderbolt = [90, 'electric', "Thunderbolt", 1]
-earthquake = [100, 'ground', "Earthquake", 0]
-stone_edge = [100, 'rock', "Stone Edge", 0]
-ice_beam = [90, 'ice', "Ice Beam", 1]
-avalanche = [60, 'ice', "Avalanche", 0]
-body_slam = [85, 'normal', "Body Slam", 0]
-slash = [70, 'normal', "Slash", 0]
-strength = [80, 'normal', "Strength", 0]
-dragon_claw = [80, 'dragon', "Dragon Claw", 0]
-sludge_bomb = [90, 'poison', "Sludge Bomb", 1]
-poison_jab = [80, 'poison', "Poison Jab", 0]
-u_turn = [70, 'bug', "U-Turn", 0]
-shadow_ball = [80, 'ghost', "Shadow Ball", 1]
-steel_wing = [70, 'steel', "Steel Wing", 0]
-psychic = [90, 'psychic', "Psychic", 1]
-dazzling_gleam = [80, 'fairy', "Dazzling Gleam", 1]
-dynamic_punch = [100, 'fighting', "Dynamic Punch", 0]
-brick_break = [75, 'fighting', "Brick Break", 0]
-throat_chop = [80, 'dark', "Throat Chop", 0]
-bite = [60, 'dark', "Bite", 0]
-protect = [None, 'normal', "Protect", 2]
-recover = [None, 'normal', "Recover", 2]
-rest = [None, 'normal', "Rest", 2]
+#move name, type, power, accuracy, category
+flamethrower = ["Flamethrower", 'fire', 90, 100, 1]
+fire_punch = ["Fire Punch", 'fire', 75, 100, 0]
+giga_drain = ["Giga Drain", 'grass', 75, 100, 1] #special
+solar_beam = ["Solar Beam", 'grass', 120, 100, 1] #special
+energy_ball = ["Energy Ball", 'grass', 90, 100, 1]
+aqua_tail = ["Aqua Tail", 'water', 90, 90, 0]
+dive = ["Dive", 'water', 80, 100, 0]
+sky_attack = ["Sky Attack", 'flying', 120, 90, 0]
+fly = ["Fly", 'flying', 90, 95, 0]
+thunderbolt = ["Thunderbolt", 'electric', 90, 100, 1]
+earthquake = ["Earthquake", 'ground', 100, 100, 0]
+stone_edge = ["Stone Edge", 'rock', 100, 80, 0]
+ice_beam = ["Ice Beam", 'ice', 90, 100, 1]
+avalanche = ["Avalanche", 'ice', 60, 100, 0]
+body_slam = ["Body Slam", 'normal', 85, 100, 0]
+slash = ["Slash", 'normal', 70, 100, 0]
+strength = ["Strength", 'normal', 80, 100, 0]
+dragon_claw = ["Dragon Claw", 'dragon', 80, 100, 0]
+sludge_bomb = ["Sludge Bomb", 'poison', 90, 100, 1]
+poison_jab = ["Poison Jab", 'poison', 80, 100, 0]
+u_turn = ["U-Turn", 'bug', 70, 100, 0]
+shadow_ball = ["Shadow Ball", 'ghost', 80, 100, 1]
+steel_wing = ["Steel Wing", 'steel', 70, 90, 0]
+psychic = ["Psychic", 'psychic', 90, 100, 1]
+dazzling_gleam = ["Dazzling Gleam", 'fairy', 80, 100, 1]
+dynamic_punch = ["Dynamic Punch", 'fighting', 100, 50, 0]
+brick_break = ["Brick Break", 'fighting', 75, 100, 0]
+throat_chop = ["Throat Chop", 'dark', 80, 100, 0]
+bite = ["Bite", 'dark', 60, 100, 0]
+protect = ["Protect", 'normal', 0, 0, 2] #special
+recover = ["Recover", 'normal', 0, 0, 2] #special
+rest = ["Rest", 'psychic', 0, 0, 2] #special
 
 
 class Pokemon:
@@ -150,7 +150,7 @@ class Pokemon:
         self.resists = resistances.get(types[0]) + resistances.get(types[1])
         self.attackst = (2*base_attack) + 5
         self.defensest = (2*base_defense) + 5
-        self.sp_attackkst = (2*base_spatk) + 5
+        self.sp_attackst = (2*base_spatk) + 5
         self.sp_defensest = (2*base_spdef) + 5
         self.speedst = (2*base_speed) + 5
         self.move_list = move_list
@@ -200,10 +200,11 @@ class Pokemon:
             sametype = 1
             crit_random = random.randint(1, 30)
             #finds the info about the move
-            power = move[0]
+            movename = move[0]
             movetype = move[1]
-            movename = move[2]
-            movecategory = move[3]
+            movepower = move[2]
+            moveaccuracy = move[3]
+            movecategory = move[4]
             #changes the modifiers based on type mathcups, criticals, and stab
             if movetype in opposing_pokemon.types:
                 sametype = 0.5
@@ -242,22 +243,27 @@ class Pokemon:
                 #multiplies damage by the modifier and rounds the result           
                 modifier = stab * critical * typeadv * sametype
                 if movecategory == 0:    #physical move
-                    unrounded_damage = (((((2 * self.level / 6) + 2) * power * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
+                    unrounded_damage = (((((2 * self.level / 6) + 2) * movepower * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
                 elif movecategory == 1:     #special move
-                    unrounded_damage = (((((2 * self.level / 6) + 2) * power * self.sp_attackkst / opposing_pokemon.sp_defensest) / 50) + 2) * modifier
+                    unrounded_damage = (((((2 * self.level / 6) + 2) * movepower * self.sp_attackst / opposing_pokemon.sp_defensest) / 50) + 2) * modifier
                 else:
                     unrounded_damage = 0
                     print("Special Move")
                 damage = round(unrounded_damage, 0)
-                print(f"\n{self.name} attacked {opposing_pokemon.name} using {movename}! \n-{damage} hp")
-                #prints the restult of the type matchup
-                if critical == 2:
-                    print("Critical Hit!")
-                if typeadv == 2 or typeadv == 4:
-                    print("It's Super Effective!")
-                elif typeadv == 0.5 or typeadv == 0.25:
-                    print("It's Not Very Effective!")
-                opposing_pokemon.lose_health(damage)
+                print(f"\n{self.name} used {movename}!")
+                accuracy_of_attack = random.randint(1, 100)
+                if accuracy_of_attack >= moveaccuracy:
+                    print(f"{self.name}'s attack missed!")
+                else:
+                    print(f"-{damage} hp")
+                    #prints the restult of the type matchup
+                    if critical == 2:
+                        print("Critical Hit!")
+                    if typeadv == 2 or typeadv == 4:
+                        print("It's Super Effective!")
+                    elif typeadv == 0.5 or typeadv == 0.25:
+                        print("It's Not Very Effective!")
+                    opposing_pokemon.lose_health(damage)
                 
 
 class Trainer:
@@ -283,7 +289,7 @@ class Trainer:
         bar_increments = (self.pokemon_list[self.current_pokemon].max_health / 20)
         num_of_bars = round(int(self.pokemon_list[self.current_pokemon].current_health / bar_increments), 0)
         bars = ""
-        for i in range(num_of_bars):
+        for num in range(num_of_bars):
             bars += "="
         lenbars = len(bars)
         whitespace_bars = 20 - lenbars
@@ -437,7 +443,7 @@ def start_fight(trainer, other_trainer):
             valid_option = False
             options = (0, 1)
             while valid_option == False:
-                print(f"{other_trainer.trainer_name} is about to send in {other_trainer.pokemon_list[other_trainer_switch]} \n1. Yes \t 0. No")
+                print(f"{other_trainer.trainer_name} is about to send in {other_trainer.pokemon_list[other_trainer_switch].name}. \n1. Yes \t 0. No")
                 #makes sure input is an integer and prevents a ValueError
                 try:
                     other_fainted_switch = int(input("Would you like to switch Pokemon? "))
@@ -492,7 +498,7 @@ def start_fight(trainer, other_trainer):
             other_trainer_attack = True
             find_supereffective_move = False
             for move_index, move in enumerate(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list):
-                if move[1] in trainer.pokemon_list[trainer.current_pokemon].weakness:
+                if move[1] in trainer.pokemon_list[trainer.current_pokemon].weakness and move[1] not in trainer.pokemon_list[trainer.current_pokemon].resists:
                     opponent_decision = move_index
                     find_supereffective_move = True
                     break
@@ -539,7 +545,7 @@ def start_fight(trainer, other_trainer):
                 while valid_option == False:
                     #prints out each move for current pokemon
                     for move_number, move in enumerate(trainer.pokemon_list[trainer.current_pokemon].move_list):
-                        print(f"{move_number + 1}. {move[2]}")
+                        print(f"{move_number + 1}. {move[0]}")
                     try:
                         attack_decision = int(input("Which attack will you use: "))
                     except:
