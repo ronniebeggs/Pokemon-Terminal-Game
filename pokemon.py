@@ -9,7 +9,7 @@ def delayed_print(s):
         time.sleep(0.03)
     time.sleep(0.50)
 
-#creates type dis/advantes for fire, water, and grass types
+#creates type advantages, weaknesses, resistances, weak against, & immunities
 offensive_advantages = {
     'grass':['water', 'ground', 'rock'],
     'water':['fire', 'ground', 'rock'],
@@ -103,39 +103,45 @@ immunities = {
     'fairy':['dragon']
 }
 
-#move name, type, power, accuracy, category
-flamethrower = ["Flamethrower", 'fire', 90, 100, 1]
-fire_punch = ["Fire Punch", 'fire', 75, 100, 0]
-giga_drain = ["Giga Drain", 'grass', 75, 100, 1] #special
-solar_beam = ["Solar Beam", 'grass', 120, 100, 1] #special
-energy_ball = ["Energy Ball", 'grass', 90, 100, 1]
-aqua_tail = ["Aqua Tail", 'water', 90, 90, 0]
-dive = ["Dive", 'water', 80, 100, 0]
-sky_attack = ["Sky Attack", 'flying', 120, 90, 0]
-fly = ["Fly", 'flying', 90, 95, 0]
-thunderbolt = ["Thunderbolt", 'electric', 90, 100, 1]
-earthquake = ["Earthquake", 'ground', 100, 100, 0]
-stone_edge = ["Stone Edge", 'rock', 100, 80, 0]
-ice_beam = ["Ice Beam", 'ice', 90, 100, 1]
-avalanche = ["Avalanche", 'ice', 60, 100, 0]
-body_slam = ["Body Slam", 'normal', 85, 100, 0]
-slash = ["Slash", 'normal', 70, 100, 0]
-strength = ["Strength", 'normal', 80, 100, 0]
-dragon_claw = ["Dragon Claw", 'dragon', 80, 100, 0]
-sludge_bomb = ["Sludge Bomb", 'poison', 90, 100, 1]
-poison_jab = ["Poison Jab", 'poison', 80, 100, 0]
-u_turn = ["U-Turn", 'bug', 70, 100, 0]
-shadow_ball = ["Shadow Ball", 'ghost', 80, 100, 1]
-steel_wing = ["Steel Wing", 'steel', 70, 90, 0]
-psychic = ["Psychic", 'psychic', 90, 100, 1]
-dazzling_gleam = ["Dazzling Gleam", 'fairy', 80, 100, 1]
-dynamic_punch = ["Dynamic Punch", 'fighting', 100, 50, 0]
-brick_break = ["Brick Break", 'fighting', 75, 100, 0]
-throat_chop = ["Throat Chop", 'dark', 80, 100, 0]
-bite = ["Bite", 'dark', 60, 100, 0]
-protect = ["Protect", '', 0, 0, 2] #special
-recover = ["Recover", '', 0, 0, 2] #special
-rest = ["Rest", '', 0, 0, 2] #special
+#move category, name, type, power, accuracy
+flamethrower = [1, "Flamethrower", 'fire', 90, 100]
+fire_punch = [0, "Fire Punch", 'fire', 75, 100]
+giga_drain = [1, "Giga Drain", 'grass', 75, 100] #special
+solar_beam = [1, "Solar Beam", 'grass', 120, 100] #special
+energy_ball = [1, "Energy Ball", 'grass', 90, 100]
+aqua_tail = [0, "Aqua Tail", 'water', 90, 90]
+dive = [0, "Dive", 'water', 80, 100]
+sky_attack = [0, "Sky Attack", 'flying', 120, 90]
+fly = [0, "Fly", 'flying', 90, 95]
+thunderbolt = [1, "Thunderbolt", 'electric', 90, 100]
+earthquake = [0, "Earthquake", 'ground', 100, 100]
+stone_edge = [0, "Stone Edge", 'rock', 100, 80]
+ice_beam = [1, "Ice Beam", 'ice', 90, 100]
+avalanche = [0, "Avalanche", 'ice', 60, 100]
+body_slam = [0, "Body Slam", 'normal', 85, 100]
+slash = [0, "Slash", 'normal', 70, 100]
+strength = [0, "Strength", 'normal', 80, 100]
+dragon_claw = [0, "Dragon Claw", 'dragon', 80, 100]
+sludge_bomb = [1, "Sludge Bomb", 'poison', 90, 100]
+poison_jab = [0, "Poison Jab", 'poison', 80, 100]
+u_turn = [0, "U-Turn", 'bug', 70, 100]
+shadow_ball = [1, "Shadow Ball", 'ghost', 80, 100]
+steel_wing = [0, "Steel Wing", 'steel', 70, 90]
+psychic = [1, "Psychic", 'psychic', 90, 100]
+dazzling_gleam = [1, "Dazzling Gleam", 'fairy', 80, 100]
+dynamic_punch = [0, "Dynamic Punch", 'fighting', 100, 50]
+brick_break = [0, "Brick Break", 'fighting', 75, 100]
+throat_chop = [0, "Throat Chop", 'dark', 80, 100]
+bite = [0, "Bite", 'dark', 60, 100]
+
+#protect = [3, "Protect", '', 0, 0, 2] #special
+#recover = [3, "Recover", '', 0, 0, 2] #special
+#rest = [3, "Rest", '', 0, 0, 2] #special
+
+#move category, name, type, stage value, list of affected stats, either 0(affects self) or 1(affects opponent)
+calm_mind = [2, "Calm Mind", 'psychic', 1, ['special attack', 'special defense'], 0]
+iron_defense = [2, "Iron Defense", 'steel', 2, ['defense'], 0]
+leer = [2, "Leer", 'normal', -1, ['defense'], 1]
 
 
 class Pokemon:
@@ -200,11 +206,11 @@ class Pokemon:
             sametype = 1
             crit_random = random.randint(1, 30)
             #finds the info about the move
-            movename = move[0]
-            movetype = move[1]
-            movepower = move[2]
-            moveaccuracy = move[3]
-            movecategory = move[4]
+            movecategory = move[0]
+            movename = move[1]
+            movetype = move[2]
+            movepower = move[3]
+            moveaccuracy = move[4]
             #changes the modifiers based on type mathcups, criticals, and stab
             if movetype in opposing_pokemon.types:
                 sametype = 0.5
@@ -246,11 +252,9 @@ class Pokemon:
                     unrounded_damage = (((((2 * self.level / 6) + 2) * movepower * self.attackst / opposing_pokemon.defensest) / 50) + 2) * modifier
                 elif movecategory == 1:     #special move
                     unrounded_damage = (((((2 * self.level / 6) + 2) * movepower * self.sp_attackst / opposing_pokemon.sp_defensest) / 50) + 2) * modifier
-                else:
-                    unrounded_damage = 0
-                    print("Special Move")
                 damage = round(unrounded_damage, 0)
                 print(f"\n{self.name} used {movename}!")
+                #randomly finds a value between 1-100 and if its less than the accuracy value, the attack hits
                 accuracy_of_attack = random.randint(1, 100)
                 if accuracy_of_attack >= moveaccuracy:
                     print(f"{self.name}'s attack missed!")
@@ -264,7 +268,58 @@ class Pokemon:
                     elif typeadv == 0.5 or typeadv == 0.25:
                         print("It's Not Very Effective!")
                     opposing_pokemon.lose_health(damage)
-                
+    
+    def stat_changing_move(self, move, opposing_pokemon=None):
+        #sets up information about the move and stat stages
+        stat_stage_multiplier = {-2:0.5, -1:0.66, 1:1.5, 2:2}
+        message = {-2:"harshly fell", -1:"fell", 1:"rose", 2:"sharply rose"}
+        movename = move[1]
+        stage_change = move[3]
+        affected_stats = move[4]
+        affected_pokemon = move[5]
+        print(f"\n{self.name} used {movename}!")
+        if 2 + 2 != 4:
+            print("But it failed!")
+        else:
+            #takes the stat from the affected stat list of the move
+            if 'attack' in affected_stats:
+                #decides who is affected by the stat change
+                if affected_pokemon == 0:
+                    self.attackst = self.attackst * stat_stage_multiplier[stage_change]
+                else:
+                    opposing_pokemon.attackst = opposing_pokemon.attackst * stat_stage_multiplier[stage_change]
+            if 'defense' in affected_stats:
+                if affected_pokemon == 0:
+                    self.defensest = self.defensest * stat_stage_multiplier[stage_change]
+                else:
+                    opposing_pokemon.defensest = opposing_pokemon.defensest * stat_stage_multiplier[stage_change]
+            if 'special attack' in affected_stats:
+                if affected_pokemon == 0:
+                    self.sp_attackst = self.sp_attackst * stat_stage_multiplier[stage_change]
+                else:
+                    opposing_pokemon.sp_attackst = opposing_pokemon.sp_attackst * stat_stage_multiplier[stage_change]
+            if 'special defense' in affected_stats:
+                if affected_pokemon == 0:
+                    self.sp_defensest = self.sp_defensest * stat_stage_multiplier[stage_change]
+                else:
+                    opposing_pokemon.sp_defensest = opposing_pokemon.sp_defensest * stat_stage_multiplier[stage_change]
+            if 'speed' in affected_stats:
+                if affected_pokemon == 0:
+                    self.speedst = self.speedst * stat_stage_multiplier[stage_change]
+                else:
+                    opposing_pokemon.speedst = opposing_pokemon.speedst * stat_stage_multiplier[stage_change]
+            #for each affected stat, a message is printed describing the stat change
+            for stat in affected_stats:
+                stage_change_message = message[stage_change]
+                if affected_pokemon == 0:
+                    affected_pokemon_name = self.name
+                else:
+                    affected_pokemon_name = opposing_pokemon.name
+                print(f"{affected_pokemon_name}'s {stat.title()} {stage_change_message}!")
+
+    def special_case_move(self, opposing_pokemon, move):
+        pass
+
 
 class Trainer:
     def __init__(self, pokemon_list, potions, max_potions, revives, trainer_name):
@@ -355,13 +410,16 @@ class Trainer:
                 elif bag_decision == 2 and self.max_potions == 0:
                     print("\nYou don't have any potions left!")
 
-    def attack_opposing_trainer(self, other_trainer, move):
+    def use_move(self, other_trainer, move):
         #finds the current pokemon and its opponent
         opposing_pokemon = other_trainer.pokemon_list[other_trainer.current_pokemon]
-        my_pokemon = self.pokemon_list[self.current_pokemon]
+        user_pokemon = self.pokemon_list[self.current_pokemon]
         #makes sure the active pokemon has the move in its list, and attacks with it
         if move in self.pokemon_list[self.current_pokemon].move_list:
-            my_pokemon.attack(opposing_pokemon, move)
+            if move[0] == 2:
+                user_pokemon.stat_changing_move(move, opposing_pokemon)
+            else:
+                user_pokemon.attack(opposing_pokemon, move)
         else:
             print("\nThis pokemon doesn't have that move!")
 
@@ -382,21 +440,21 @@ class Trainer:
 
 
 #instantiates each pokemon with stats, moves, types, and name
-charizard = Pokemon("Charizard", ['fire', 'flying'], 78, 84, 78, 109, 85, 100, [flamethrower, fly, steel_wing])
-venusaur = Pokemon("Venusaur", ['grass', 'poison'], 80, 82, 83, 100, 100, 80, [giga_drain, solar_beam, sludge_bomb])
+charizard = Pokemon("Charizard", ['fire', 'flying'], 78, 84, 78, 109, 85, 100, [flamethrower, fly, steel_wing, calm_mind])
+venusaur = Pokemon("Venusaur", ['grass', 'poison'], 80, 82, 83, 100, 100, 80, [giga_drain, solar_beam, sludge_bomb, leer])
 blastoise = Pokemon("Blastoise", ['water', ''], 79, 83, 100, 85, 105, 78, [aqua_tail, ice_beam, bite])
 pidgeot = Pokemon("Pidgeot", ['flying', 'normal'], 83, 80, 75, 70, 70, 101, [sky_attack, slash, u_turn])
 jolteon = Pokemon("Jolteon", ['electric', ''], 65, 65, 60, 110, 95, 130, [thunderbolt, body_slam, shadow_ball])
 nidoking = Pokemon("Nidoking", ['ground', 'poison'], 81, 102, 77, 85, 75, 85, [earthquake, stone_edge, poison_jab])
 dragonite = Pokemon("Dragonite", ['dragon', 'flying'], 91, 134, 95, 100, 100, 80, [dragon_claw, sky_attack, fire_punch])
 gengar = Pokemon("Gengar", ['ghost', 'poison'], 60, 65, 60, 130, 75, 110, [sludge_bomb, shadow_ball, giga_drain])
-alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 135, 95, 120, [psychic, dazzling_gleam, recover])
+alakazam = Pokemon("Alakazam", ['psychic', ''], 55, 50, 45, 135, 95, 120, [psychic, dazzling_gleam, calm_mind])
 machamp = Pokemon("Machamp", ['fighting', ''], 90, 130, 80, 65, 85, 55, [dynamic_punch, strength, throat_chop])
-snorlax = Pokemon("Snorlax", ['normal', ''], 160, 110, 65, 65, 110, 30, [body_slam, brick_break, rest])
-cloyster = Pokemon("Cloyster", ['water', 'ice'], 50, 95, 180, 85, 45, 70, [avalanche, dive, protect])
+snorlax = Pokemon("Snorlax", ['normal', ''], 160, 110, 65, 65, 110, 30, [body_slam, brick_break])
+cloyster = Pokemon("Cloyster", ['water', 'ice'], 50, 95, 180, 85, 45, 70, [avalanche, dive])
 #instantiates both trainers with pokemon lists, and potion counts
-player1 = Trainer([charizard, venusaur, blastoise, pidgeot, machamp, nidoking], 2, 1, 1, "Red")
-cpu = Trainer([cloyster, gengar, snorlax, jolteon, alakazam, dragonite], 0, 3, 0, "Blue")
+player1 = Trainer([venusaur, charizard, blastoise, pidgeot, machamp, nidoking], 2, 1, 1, "Red")
+cpu = Trainer([alakazam, cloyster, gengar, snorlax, jolteon, dragonite], 0, 3, 0, "Blue")
 
 
 def start_fight(trainer, other_trainer):
@@ -430,16 +488,14 @@ def start_fight(trainer, other_trainer):
                     continue
                 trainer.switch_active_pokemon(switch_decision - 1)
 
-        #if cpu current pokemon has fainted, it's forced to switch out
+        #if cpu current pokemon has fainted, it's forced to switch to the next alive pokemon
         if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == True:
             valid_option = False
             while valid_option == False:
-                pokemonindex = 0
-                for pokemon in other_trainer.pokemon_list:
-                    if other_trainer.pokemon_list[pokemonindex].knocked_out == False:
-                        other_trainer_switch = pokemonindex
+                for pokemon_index, pokemon in enumerate(other_trainer.pokemon_list):
+                    if other_trainer.pokemon_list[pokemon_index].knocked_out == False:
+                        other_trainer_switch = pokemon_index
                         valid_option = True
-                    pokemonindex += 1
             valid_option = False
             options = (0, 1)
             while valid_option == False:
@@ -456,7 +512,6 @@ def start_fight(trainer, other_trainer):
                 else:
                     print("\n*Not a valid option! Try Again!")
                     continue
-            print(other_fainted_switch)
             if other_fainted_switch == 1:
                 options = range(1, len(trainer.pokemon_list) + 1)
                 valid_option = False
@@ -477,6 +532,7 @@ def start_fight(trainer, other_trainer):
                     else:
                         print("\n*Not a valid option! Try Again!")
                         continue
+            #switches to the new pokemon and resets the status move counter that prevents a pokemon from spamming
             other_trainer.switch_active_pokemon(other_trainer_switch)
 
 
@@ -488,24 +544,42 @@ def start_fight(trainer, other_trainer):
         #CPU DECISION MAKING PROCESS:
         other_trainer_usepotion = False
         other_trainer_attack = False
-        #if cpu current pokemon's health is below 1/4 of the max, it will use a potion
+        #if cpu current pokemon's health is below 1/4 of the max, theres a 1 in 3 chance the cpu will use a potion
         potion_or_attack = random.randint(1, 3)
         if (other_trainer.pokemon_list[other_trainer.current_pokemon].current_health <= (other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 4)) and potion_or_attack == 2:
             if other_trainer.max_potions > 0:
                 other_trainer_usepotion = True
         else:
-            #takes each current cpu moves and tries to find one that has an advantage against the opponent
+            #takes the cpu's current pokemon's moves and tries to find one that has an advantage against the user's current pokemon
             other_trainer_attack = True
             find_supereffective_move = False
             for move_index, move in enumerate(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list):
-                if move[1] in trainer.pokemon_list[trainer.current_pokemon].weakness and move[1] not in trainer.pokemon_list[trainer.current_pokemon].resists:
+                if move[2] in trainer.pokemon_list[trainer.current_pokemon].weakness and move[2] not in trainer.pokemon_list[trainer.current_pokemon].resists:
                     opponent_decision = move_index
                     find_supereffective_move = True
                     break
-            #randomly choses an attack if it can't find an advantageous move
             if find_supereffective_move == False:
-                opponent_decision = random.randint(1, len(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list)) - 1
-
+                #if no supereffective move is found, there will be a 1 and 3 chance that the user's pokemon will use a status move if it has one
+                opponent_use_status = random.randint(1, 3)
+                opponent_has_status_move = False
+                for move in other_trainer.pokemon_list[other_trainer.current_pokemon].move_list:
+                    if move[0] == 2:
+                        opponent_has_status_move = True
+                        break
+                #if the opponents current pokemon has a status move and the random number == 2, the pokemon uses the move
+                if opponent_use_status == 2 and opponent_has_status_move == True:
+                    for move_index, move in enumerate(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list):
+                        if move[0] == 2:
+                            opponent_decision = move_index
+                            break
+                #if the cpu doesn't use a status move, a random move in the current pokemon's list is chosen
+                else:
+                    confirmed_non_status = False
+                    while confirmed_non_status == False:
+                        opponent_decision = random.randint(1, len(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list)) - 1
+                        if other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][0] != 2:
+                            confirmed_non_status = True
+                    
 
         #USER DECISION MAKING PROCESS:
         #starts by creating a loop that allows a back button to function
@@ -545,7 +619,7 @@ def start_fight(trainer, other_trainer):
                 while valid_option == False:
                     #prints out each move for current pokemon
                     for move_number, move in enumerate(trainer.pokemon_list[trainer.current_pokemon].move_list):
-                        print(f"{move_number + 1}. {move[0]}")
+                        print(f"{move_number + 1}. {move[1]}")
                     try:
                         attack_decision = int(input("Which attack will you use: "))
                     except:
@@ -574,7 +648,7 @@ def start_fight(trainer, other_trainer):
                     except:
                         print("\n*Decision must be an Integer!")
                         continue
-                    #checks to see if the input is a working option
+                    #checks to see if the input is an option that works
                     #then makes sure the input will work when executed during the turn
                     if bag_decision in bag_options:
                         if bag_decision == 1 and trainer.potions > 0:
@@ -655,8 +729,10 @@ def start_fight(trainer, other_trainer):
                 if back_button_pressed == True:
                     first_back = False
                     continue
+                #prints out the summary of the selected pokemon
                 valid_option = False
                 while valid_option == False:
+                    #prints out the health, type, and stats of the selected pokemon
                     pokemon_choice = trainer.pokemon_list[pokemon_decision - 1]
                     trainer.find_bars(pokemon_decision - 1)
                     print(f"\n{pokemon_choice.name} Summary: \nHealth: {trainer.find_bars(pokemon_decision - 1)} {pokemon_choice.current_health} / {pokemon_choice.max_health}")
@@ -666,14 +742,50 @@ def start_fight(trainer, other_trainer):
                             pokemon_types_summary += type.title() + " "
                     print(pokemon_types_summary)
                     print(f"Stats: {pokemon_choice.max_health} / {pokemon_choice.attackst} / {pokemon_choice.defensest} / {pokemon_choice.sp_attackst} / {pokemon_choice.sp_defensest} / {pokemon_choice.speedst}")
+                    #each move is printed as either a physical/special attack, or a status move
                     print("Moves:")
                     for move in pokemon_choice.move_list:
-                        move_category = move[4]
+                        move_category = move[0]
                         if move_category == 0:
-                            move_category = "Physical"
+                            category_text = "Physical"
+                        elif move_category == 1:
+                            category_text = "Special"
                         else:
-                            move_category = "Special"
-                        print(f"   {move[0]}: \n\t{move[1].title()} - {move_category} \n\tpower: {move[2]} - accuracy: {move[3]}")
+                            category_text = "Status"
+                        #if it's a status move:
+                        if move_category == 2:
+                            increase_or_decrease = ""
+                            if move[3] > 0:
+                                increase_or_decrease = "Increases"
+                            else:
+                                increase_or_decrease = "Decreases"
+                            if move[-1] == 1:
+                                move_target = "Opponent"
+                            else:
+                                move_target = trainer.pokemon_list[pokemon_decision - 1].name
+                            affected_stats = ""
+                            for index, stat in enumerate(move[4]):
+                                affected_stats += stat.title()
+                                #if the iterated stat isn't the last one in the list and the list has more than 2 stats, add a comma after the stat
+                                if stat != move[4][-1] and len(move[4]) > 2:
+                                    affected_stats += ", "
+                                #if the list only contains one stat, and the stat is the second to last one in the list, add "and "
+                                #converts the length of the list into a base zero index value, and subtracts one to find the second to last element in the list
+                                if len(move[4]) != 1 and index == (len(move[4]) - 1) - 1:
+                                    affected_stats += " and "
+                            stat_or_stats = "stat"
+                            if len(move[4]) > 1:
+                                stat_or_stats = "stats"
+                            stage_value_string = ""
+                            stage_value_string += str(move[3])[-1]
+                            stage_or_stages = "stage"
+                            if move[3] > 1 or move[3] < -1:
+                                stage_or_stages = "stages"
+                            #prints a status move description depending on the move information
+                            print(f"    {move[1]}: \n\t{move[2].title()} - {category_text} \n\t{increase_or_decrease} {move_target}'s {affected_stats} {stat_or_stats} by {stage_value_string} {stage_or_stages}.")
+                        else:
+                            #prints an attack move desription with move information
+                            print(f"    {move[1]}: \n\t{move[2].title()} - {category_text} \n\tpower: {move[3]} - accuracy: {move[4]}")
                     print("\n1. Shift Pokemon 0. Cancel")
                     try:
                         switch_or_cancel = int(input("Would you like to switch to this pokemon? "))
@@ -720,22 +832,22 @@ def start_fight(trainer, other_trainer):
         #if their speed is equal, trainer1 attacks first
         if trainer.pokemon_list[trainer.current_pokemon].speedst >= other_trainer.pokemon_list[other_trainer.current_pokemon].speedst:
             if user_decision == 1 and trainer_dont_attack == False:
-                trainer.attack_opposing_trainer(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
+                trainer.use_move(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
             #checks to make sure that the current pokemon hasn't fainted
             if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
                 #checks to see if a potion was used
                 if other_trainer_attack == True and other_trainer_usepotion == False:
                     #decides which attack the cpu will use depending on previous code
-                    other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
+                    other_trainer.use_move(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
 
         else:
             #checks to see if a potion was used, determining whether the cpu will attack
             if other_trainer_attack == True and other_trainer_usepotion == False:
                 #randomly decides which attack the cpu will use
-                other_trainer.attack_opposing_trainer(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
+                other_trainer.use_move(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
             #makes sure the currnet pokemon is alive, and hasn't already used a potion
             if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer_dont_attack == False:
-                trainer.attack_opposing_trainer(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
+                trainer.use_move(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
 
 
         #CHECKS WHETHER THE GAME SHOULD END:
