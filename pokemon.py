@@ -187,6 +187,8 @@ class Pokemon:
         #if the pokemons health is less than or equal to zero, the pokemon is knocked out
         if self.current_health <= 0:
             self.knocked_out = True
+            self.status_condition = None
+            self.status_counter = 0
             print(f"\n{self.name} has fainted.")
 
     def revive(self):
@@ -456,7 +458,7 @@ machamp = Pokemon("Machamp", ['fighting', ''], 90, 130, 80, 65, 85, 55, [dynamic
 snorlax = Pokemon("Snorlax", ['normal', ''], 160, 110, 65, 65, 110, 30, [body_slam, brick_break])
 cloyster = Pokemon("Cloyster", ['water', 'ice'], 50, 95, 180, 85, 45, 70, [avalanche, dive])
 #instantiates both trainers with pokemon lists, and potion counts
-player1 = Trainer([charizard, venusaur, blastoise, pidgeot, machamp, nidoking], 2, 1, 1, "Red")
+player1 = Trainer([nidoking, venusaur, blastoise, pidgeot, machamp, charizard], 2, 1, 1, "Red")
 cpu = Trainer([gengar, cloyster, alakazam, snorlax, jolteon, dragonite], 0, 3, 0, "Blue")
 
 
@@ -836,91 +838,6 @@ def start_fight(trainer, other_trainer):
         #compares speed of current pokemon to determine who attacks first
         #if their speed is equal, trainer1 attacks first
         if trainer.pokemon_list[trainer.current_pokemon].speedst >= other_trainer.pokemon_list[other_trainer.current_pokemon].speedst:
-            if user_decision == 1 and trainer_attack == True:
-                if trainer.pokemon_list[trainer.current_pokemon].status_condition != None:
-                    if trainer.pokemon_list[trainer.current_pokemon].status_counter > 0:
-                        random_remove_status = random.randint(1, 100)
-                        chance_of_removing_status = 25 * trainer.pokemon_list[trainer.current_pokemon].status_counter
-                        if random_remove_status <= chance_of_removing_status:
-                            print(f"\nStatus Condition Wore Off")
-                            trainer.pokemon_list[trainer.current_pokemon].status_condition = None
-                            trainer.pokemon_list[trainer.current_pokemon].status_counter = 0
-
-                    if trainer.pokemon_list[trainer.current_pokemon].status_condition == 'frozen' or trainer.pokemon_list[trainer.current_pokemon].status_condition == 'asleep':
-                        print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} is {trainer.pokemon_list[trainer.current_pokemon].status_condition.title()}! \nIt's unable to attack!")
-                        trainer_attack = False
-                        trainer.pokemon_list[trainer.current_pokemon].status_counter += 1
-
-                    elif trainer.pokemon_list[trainer.current_pokemon].status_condition == 'confused':
-                        print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} is confused.")
-                        coin_flip = random.randint(1, 2)
-                        if coin_flip == 2:
-                            print("It hurt itself in its confusion!")
-                            trainer.pokemon_list[trainer.current_pokemon].lose_health(trainer.pokemon_list[trainer.current_pokemon].max_health / 8)
-                            trainer_attack = False
-                        trainer.pokemon_list[trainer.current_pokemon].status_counter += 1
-
-                    elif trainer.pokemon_list[trainer.current_pokemon].status_condition == 'paralyzed':
-                        coin_flip = random.randint(1, 4)
-                        if coin_flip == 2:
-                            print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} is paralyzed. \nIt can't to move!")
-                            trainer_attack = False
-                        trainer.pokemon_list[trainer.current_pokemon].status_counter += 1
-                    
-                    if trainer_attack == True:
-                        trainer.use_move(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
-
-            #checks to make sure that the current pokemon hasn't fainted
-            if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
-                #checks to see if a potion was used
-                if other_trainer_attack == True and other_trainer_usepotion == False:
-                    #decides which attack the cpu will use depending on previous code
-                    other_trainer.use_move(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
-                    #gives pokemon a status condition randomly depending on the type of the attack used against them
-                    if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer.pokemon_list[trainer.current_pokemon].status_condition == None:
-                        conditions_by_type = {'fire':'burn', 'poison':'poison', 'ghost':'confused', 'electric':'paralyzed', 'ice':'frozen', 'psychic':'asleep'}
-                        if other_trainer_attack == True:
-                            if other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][0] != 2 and other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2] in conditions_by_type:
-                                obtain_status_condition_chances = random.randint(1, 2)
-                                if obtain_status_condition_chances == 2:
-                                    trainer_status_condition = conditions_by_type.get(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2])
-                                    if trainer_status_condition == 'poison' or trainer_status_condition == 'burn':
-                                        print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was {trainer_status_condition}ed!")
-                                    elif trainer_status_condition == 'frozen':
-                                        print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was frozen solid!")
-                                    elif trainer_status_condition == 'asleep':
-                                        print(f"{trainer.pokemon_list[trainer.current_pokemon].name} fell asleep!")
-                                    elif trainer_status_condition == 'paralyzed':
-                                        print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was paralyzed! It may be unable to move!")
-                                    elif trainer_status_condition == 'confused':
-                                        print(f"{trainer.pokemon_list[trainer.current_pokemon].name} is confused.")
-                                    trainer.pokemon_list[trainer.current_pokemon].status_condition = trainer_status_condition
-
-        else:
-            #checks to see if a potion was used, determining whether the cpu will attack
-            if other_trainer_attack == True and other_trainer_usepotion == False:
-                #randomly decides which attack the cpu will use
-                other_trainer.use_move(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
-                #gives pokemon a status condition randomly depending on the type of the attack used against them
-                if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer.pokemon_list[trainer.current_pokemon].status_condition == None:
-                    conditions_by_type = {'fire':'burn', 'poison':'poison', 'ghost':'confused', 'electric':'paralyzed', 'ice':'frozen', 'psychic':'asleep'}
-                    if other_trainer_attack == True:
-                        if other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][0] != 2 and other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2] in conditions_by_type:
-                            obtain_status_condition_chances = random.randint(1, 2)
-                            if obtain_status_condition_chances == 2:
-                                trainer_status_condition = conditions_by_type.get(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2])
-                                if trainer_status_condition == 'poison' or trainer_status_condition == 'burn':
-                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was {trainer_status_condition}ed!")
-                                elif trainer_status_condition == 'frozen':
-                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was frozen solid!")
-                                elif trainer_status_condition == 'asleep':
-                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} fell asleep!")
-                                elif trainer_status_condition == 'paralyzed':
-                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was paralyzed! It may be unable to move!")
-                                elif trainer_status_condition == 'confused':
-                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} is confused.")
-                                trainer.pokemon_list[trainer.current_pokemon].status_condition = trainer_status_condition
-
             #makes sure the currnet pokemon is alive, and hasn't already used a potion
             if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer_attack == True:
                 if trainer.pokemon_list[trainer.current_pokemon].status_condition != None:
@@ -928,7 +845,8 @@ def start_fight(trainer, other_trainer):
                         random_remove_status = random.randint(1, 100)
                         chance_of_removing_status = 25 * trainer.pokemon_list[trainer.current_pokemon].status_counter
                         if random_remove_status <= chance_of_removing_status:
-                            print(f"\nStatus Condition Wore Off")
+                            status_condition_removal_message = {'burn':"'s burn wore off", 'poison':"'s poison wore off", 'confused':" snapped out of confusion!", 'paralyzed':" is no longer paralyzed", 'frozen':" thawed out!", 'asleep':" woke up!"}
+                            print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name}{status_condition_removal_message.get(trainer.pokemon_list[trainer.current_pokemon].status_condition)}")
                             trainer.pokemon_list[trainer.current_pokemon].status_condition = None
                             trainer.pokemon_list[trainer.current_pokemon].status_counter = 0
 
@@ -956,6 +874,198 @@ def start_fight(trainer, other_trainer):
                 if trainer_attack == True:
                     trainer.use_move(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
 
+                if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False and other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == None:
+                    conditions_by_type = {'fire':'burn', 'poison':'poison', 'ghost':'confused', 'electric':'paralyzed', 'ice':'frozen', 'psychic':'asleep'}
+                    if trainer_attack == True:
+                        if trainer.pokemon_list[trainer.current_pokemon].move_list[opponent_decision][0] != 2 and trainer.pokemon_list[trainer.current_pokemon].move_list[opponent_decision][2] in conditions_by_type:
+                            obtain_status_condition_chances = random.randint(1, 2)
+                            if obtain_status_condition_chances == 2:
+                                other_trainer_status_condition = conditions_by_type.get(trainer.pokemon_list[trainer.current_pokemon].move_list[opponent_decision][2])
+                                if other_trainer_status_condition == 'poison' or other_trainer_status_condition == 'burn':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was {other_trainer_status_condition}ed!")
+                                elif other_trainer_status_condition == 'frozen':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was frozen solid!")
+                                elif other_trainer_status_condition == 'asleep':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} fell asleep!")
+                                elif other_trainer_status_condition == 'paralyzed':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was paralyzed! It may be unable to move!")
+                                elif other_trainer_status_condition == 'confused':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is confused.")
+                                other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition = other_trainer_status_condition
+
+            #checks to make sure that the current pokemon hasn't fainted
+            if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
+                #makes sure the currnet pokemon is alive, and hasn't already used a potion
+                if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False and other_trainer_attack == True:
+                    if other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition != None:
+                        if other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter > 0:
+                            random_remove_status = random.randint(1, 100)
+                            chance_of_removing_status = 25 * other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter
+                            if random_remove_status <= chance_of_removing_status:
+                                status_condition_removal_message = {'burn':"'s burn wore off", 'poison':"'s poison wore off", 'confused':" snapped out of confusion!", 'paralyzed':" is no longer paralyzed", 'frozen':" thawed out!", 'asleep':" woke up!"}
+                                print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name}{status_condition_removal_message.get(other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition)}")
+                                other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition = None
+                                other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter = 0
+
+                    if other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'frozen' or other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'asleep':
+                        print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is {other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition.title()}! \nIt's unable to attack!")
+                        other_trainer_attack = False
+                        other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1
+
+                    elif other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'confused':
+                        print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is confused.")
+                        coin_flip = random.randint(1, 2)
+                        if coin_flip == 2:
+                            print("It hurt itself in its confusion!")
+                            other_trainer.pokemon_list[other_trainer.current_pokemon].lose_health(other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 8)
+                            other_trainer_attack = False
+                        other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1
+
+                    elif other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'paralyzed':
+                        coin_flip = random.randint(1, 4)
+                        if coin_flip == 2:
+                            print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is paralyzed. \nIt can't to move!")
+                            other_trainer_attack = False
+                        other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1
+                        
+                    if other_trainer_attack == True:
+                        other_trainer.use_move(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
+
+                #gives pokemon a status condition randomly depending on the type of the attack used against them
+                if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer.pokemon_list[trainer.current_pokemon].status_condition == None:
+                    conditions_by_type = {'fire':'burn', 'poison':'poison', 'ghost':'confused', 'electric':'paralyzed', 'ice':'frozen', 'psychic':'asleep'}
+                    if other_trainer_attack == True:
+                        if other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][0] != 2 and other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2] in conditions_by_type:
+                            obtain_status_condition_chances = random.randint(1, 2)
+                            if obtain_status_condition_chances == 2:
+                                trainer_status_condition = conditions_by_type.get(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2])
+                                if trainer_status_condition == 'poison' or trainer_status_condition == 'burn':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was {trainer_status_condition}ed!")
+                                elif trainer_status_condition == 'frozen':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was frozen solid!")
+                                elif trainer_status_condition == 'asleep':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} fell asleep!")
+                                elif trainer_status_condition == 'paralyzed':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was paralyzed! It may be unable to move!")
+                                elif trainer_status_condition == 'confused':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} is confused.")
+                                trainer.pokemon_list[trainer.current_pokemon].status_condition = trainer_status_condition
+
+        else:
+            #checks to see if a potion was used, determining whether the cpu will attack
+            if other_trainer_attack == True and other_trainer_usepotion == False:
+                #randomly decides which attack the cpu will use
+                
+                #makes sure the currnet pokemon is alive, and hasn't already used a potion
+                if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False and other_trainer_attack == True:
+                    if other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition != None:
+                        if other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter > 0:
+                            random_remove_status = random.randint(1, 100)
+                            chance_of_removing_status = 25 * other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter
+                            if random_remove_status <= chance_of_removing_status:
+                                status_condition_removal_message = {'burn':"'s burn wore off", 'poison':"'s poison wore off", 'confused':" snapped out of confusion!", 'paralyzed':" is no longer paralyzed", 'frozen':" thawed out!", 'asleep':" woke up!"}
+                                print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name}{status_condition_removal_message.get(other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition)}")
+                                other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition = None
+                                other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter = 0
+
+                    if other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'frozen' or other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'asleep':
+                        print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is {other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition.title()}! \nIt's unable to attack!")
+                        other_trainer_attack = False
+                        other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1
+
+                    elif other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'confused':
+                        print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is confused.")
+                        coin_flip = random.randint(1, 2)
+                        if coin_flip == 2:
+                            print("It hurt itself in its confusion!")
+                            other_trainer.pokemon_list[other_trainer.current_pokemon].lose_health(other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 8)
+                            other_trainer_attack = False
+                        other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1
+
+                    elif other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'paralyzed':
+                        coin_flip = random.randint(1, 4)
+                        if coin_flip == 2:
+                            print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is paralyzed. \nIt can't to move!")
+                            other_trainer_attack = False
+                        other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1
+                        
+                    if other_trainer_attack == True:
+                        other_trainer.use_move(trainer, other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision])
+
+                #gives pokemon a status condition randomly depending on the type of the attack used against them
+                if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer.pokemon_list[trainer.current_pokemon].status_condition == None:
+                    conditions_by_type = {'fire':'burn', 'poison':'poison', 'ghost':'confused', 'electric':'paralyzed', 'ice':'frozen', 'psychic':'asleep'}
+                    if other_trainer_attack == True:
+                        if other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][0] != 2 and other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2] in conditions_by_type:
+                            obtain_status_condition_chances = random.randint(1, 2)
+                            if obtain_status_condition_chances == 2:
+                                trainer_status_condition = conditions_by_type.get(other_trainer.pokemon_list[other_trainer.current_pokemon].move_list[opponent_decision][2])
+                                if trainer_status_condition == 'poison' or trainer_status_condition == 'burn':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was {trainer_status_condition}ed!")
+                                elif trainer_status_condition == 'frozen':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was frozen solid!")
+                                elif trainer_status_condition == 'asleep':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} fell asleep!")
+                                elif trainer_status_condition == 'paralyzed':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} was paralyzed! It may be unable to move!")
+                                elif trainer_status_condition == 'confused':
+                                    print(f"{trainer.pokemon_list[trainer.current_pokemon].name} is confused.")
+                                trainer.pokemon_list[trainer.current_pokemon].status_condition = trainer_status_condition
+
+            #makes sure the currnet pokemon is alive, and hasn't already used a potion
+            if trainer.pokemon_list[trainer.current_pokemon].knocked_out == False and trainer_attack == True:
+                if trainer.pokemon_list[trainer.current_pokemon].status_condition != None:
+                    if trainer.pokemon_list[trainer.current_pokemon].status_counter > 1:
+                        random_remove_status = random.randint(1, 100)
+                        chance_of_removing_status = 25 * (trainer.pokemon_list[trainer.current_pokemon].status_counter - 1)
+                        if random_remove_status <= chance_of_removing_status:
+                            status_condition_removal_message = {'burn':"'s burn wore off", 'poison':"'s poison wore off", 'confused':" snapped out of confusion!", 'paralyzed':" is no longer paralyzed", 'frozen':" thawed out!", 'asleep':" woke up!"}
+                            print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name}{status_condition_removal_message.get(trainer.pokemon_list[trainer.current_pokemon].status_condition)}")
+                            trainer.pokemon_list[trainer.current_pokemon].status_condition = None
+                            trainer.pokemon_list[trainer.current_pokemon].status_counter = 0
+
+                if trainer.pokemon_list[trainer.current_pokemon].status_condition == 'frozen' or trainer.pokemon_list[trainer.current_pokemon].status_condition == 'asleep':
+                    print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} is {trainer.pokemon_list[trainer.current_pokemon].status_condition.title()}! \nIt's unable to attack!")
+                    trainer_attack = False
+                    trainer.pokemon_list[trainer.current_pokemon].status_counter += 1
+
+                elif trainer.pokemon_list[trainer.current_pokemon].status_condition == 'confused':
+                    print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} is confused.")
+                    coin_flip = random.randint(1, 2)
+                    if coin_flip == 2:
+                        print("It hurt itself in its confusion!")
+                        trainer.pokemon_list[trainer.current_pokemon].lose_health(trainer.pokemon_list[trainer.current_pokemon].max_health / 8)
+                        trainer_attack = False
+                    trainer.pokemon_list[trainer.current_pokemon].status_counter += 1
+
+                elif trainer.pokemon_list[trainer.current_pokemon].status_condition == 'paralyzed':
+                    coin_flip = random.randint(1, 4)
+                    if coin_flip == 2:
+                        print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} is paralyzed. \nIt can't to move!")
+                        trainer_attack = False
+                    trainer.pokemon_list[trainer.current_pokemon].status_counter += 1
+                    
+                if trainer_attack == True:
+                    trainer.use_move(cpu, trainer.pokemon_list[trainer.current_pokemon].move_list[(attack_decision)])
+
+                if other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False and other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == None:
+                    conditions_by_type = {'fire':'burn', 'poison':'poison', 'ghost':'confused', 'electric':'paralyzed', 'ice':'frozen', 'psychic':'asleep'}
+                    if trainer_attack == True:
+                        if trainer.pokemon_list[trainer.current_pokemon].move_list[opponent_decision][0] != 2 and trainer.pokemon_list[trainer.current_pokemon].move_list[opponent_decision][2] in conditions_by_type:
+                            obtain_status_condition_chances = random.randint(1, 2)
+                            if obtain_status_condition_chances == 2:
+                                other_trainer_status_condition = conditions_by_type.get(trainer.pokemon_list[trainer.current_pokemon].move_list[opponent_decision][2])
+                                if other_trainer_status_condition == 'poison' or other_trainer_status_condition == 'burn':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was {other_trainer_status_condition}ed!")
+                                elif other_trainer_status_condition == 'frozen':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was frozen solid!")
+                                elif other_trainer_status_condition == 'asleep':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} fell asleep!")
+                                elif other_trainer_status_condition == 'paralyzed':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was paralyzed! It may be unable to move!")
+                                elif other_trainer_status_condition == 'confused':
+                                    print(f"{other_trainer.pokemon_list[other_trainer.current_pokemon].name} is confused.")
+                                other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition = other_trainer_status_condition
         
         #CHECKS WHETHER THE GAME SHOULD END:
         #if all pokemon have fainted on either side, the fight ends
@@ -975,13 +1085,19 @@ def start_fight(trainer, other_trainer):
             end_fight = True
 
 
-        if trainer.pokemon_list[trainer.current_pokemon].status_condition != None:
-                                                
+        if trainer.pokemon_list[trainer.current_pokemon].status_condition != None and trainer.pokemon_list[trainer.current_pokemon].knocked_out == False:
+        
             if trainer.pokemon_list[trainer.current_pokemon].status_condition == 'burn' or trainer.pokemon_list[trainer.current_pokemon].status_condition == 'poison':
                 print(f"\n{trainer.pokemon_list[trainer.current_pokemon].name} was hurt by its {trainer.pokemon_list[trainer.current_pokemon].status_condition.title()}!")
                 trainer.pokemon_list[trainer.current_pokemon].lose_health(trainer.pokemon_list[trainer.current_pokemon].max_health / 8)
                 trainer.pokemon_list[trainer.current_pokemon].status_counter += 1             
 
+        if other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition != None and other_trainer.pokemon_list[other_trainer.current_pokemon].knocked_out == False:
+        
+            if other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'burn' or other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition == 'poison':
+                print(f"\n{other_trainer.pokemon_list[other_trainer.current_pokemon].name} was hurt by its {other_trainer.pokemon_list[other_trainer.current_pokemon].status_condition.title()}!")
+                other_trainer.pokemon_list[other_trainer.current_pokemon].lose_health(other_trainer.pokemon_list[other_trainer.current_pokemon].max_health / 8)
+                other_trainer.pokemon_list[other_trainer.current_pokemon].status_counter += 1   
             
     #END OF BATTLE MESSAGES:
     #displays winning or losing messages at the end of a battle, and randomly decides the prize money
